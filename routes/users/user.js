@@ -62,7 +62,8 @@ router.post(
 
 // post request
 // logout on a single devices on which ur logged in.
-router.post("/logout", autho, async (req, res) => {
+
+router.post("/logout",autho,async (req, res) => {
   try {
     req.user.tokens = req.user.tokens.filter(token => {
       return token.token !== req.token;

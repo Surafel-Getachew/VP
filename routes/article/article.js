@@ -14,7 +14,7 @@ router.post("/", auth, async (req, res) => {
       owner: req.psychiatrist._id
     });
     await article.save();
-    res.status(201).send(article);
+    res.status(201).json(article);
   } catch (error) {
     res.status(500).send(error);
   }
@@ -27,7 +27,7 @@ router.get("/:id",auth, async (req,res) => {
   try {
     const article = await Article.findById(req.params.id);
     await req.psychiatrist.populate("articles").execPopulate();
-    res.status(200).send(req.psychiatrist.article)
+    res.status(200).json(req.psychiatrist.article)
     // const article = await Article.findById(req,params.id);
     // await article.populate("owner").execPopulate();
     // res.status(200).send(article.owner);
