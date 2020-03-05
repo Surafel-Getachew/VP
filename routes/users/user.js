@@ -21,9 +21,10 @@ router.post(
       return res.status(400).json({ err: errors.array() });
     } else {
       const { name, email, password } = req.body;
-      let user = await User.findOne({ email });
+      try {
+        let user = await User.findOne({ email });
       if (user) {
-        res.json({ msg: "User already exists" });
+        return res.json({ msg: "User already exists" });
       } else {
         user = new User({
           name,
@@ -32,8 +33,12 @@ router.post(
         });
         const token = await user.generateAuthToken();
         await user.save();
-        res.send({ user, token });
+        res.json({ token }); // I removed to send {user}
       }
+    }catch(error){
+      res.status(500).json({msg:"Internal server error!"});
+    }
+      
     }
   }
 );
