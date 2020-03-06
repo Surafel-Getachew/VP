@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../../models/User");
 const autho = require("../../middleware/autho");
 
+// sign up
 router.post(
   "/",
   [
@@ -24,7 +25,7 @@ router.post(
       try {
         let user = await User.findOne({ email });
       if (user) {
-        return res.json({ msg: "User already exists" });
+         return res.status(400).json({ msg: "User already exist" });
       } else {
         user = new User({
           name,
@@ -56,7 +57,15 @@ router.post(
     }
     const { email, password } = req.body;
     try {
-      const user = await User.findByCredentials(email, password);
+      // const user = await User.findByCredentials(email, password);
+      const user = await User.findOne({email})
+      if(!user){
+        return res.status(400).json({msg:"User doesn't exist"});
+      }
+      const isMatch = await bcrypt.compare(password,user.password)
+      if(!isMatch){
+        return res.status(400).json({msg:"Invalid Email or Password"})
+      }
       const token = await user.generateAuthToken();
       res.send({ user, token });
     } catch (error) {
@@ -108,6 +117,21 @@ router.delete("/me", autho, async (req, res) => {
 router.get("/me", autho, async (req, res) => {
   res.send(req.user);
 });
+
+// get a user with a token included
+// private route 
+// get request
+
+router.get("/",autho, async (req,res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    res.json(user)
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+  
+})
 
 // update route
 // private route 

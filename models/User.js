@@ -72,7 +72,8 @@ UserSchema.methods.generateAuthToken = async function() {
 UserSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
   if (!user) {
-    throw new Error("Invalid credintial");
+    // throw new Error("Invalid credintial");
+    return JSON({msg:"User doesnt extis"})
   }
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
