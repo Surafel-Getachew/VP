@@ -7,6 +7,7 @@ const autho = async (req, res, next) => {
     const decoded = jwt.verify(token, config.get("jwtSecret"));
     const user = await User.findOne({
       _id: decoded._id,
+      role:decoded.role,
       "tokens.token": token
     });
     if (!user) {

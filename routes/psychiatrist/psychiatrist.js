@@ -40,7 +40,7 @@ router.post(
         await psychiatrist.save();
 
         const token = await psychiatrist.generateAuthToken();
-        res.status(201).send({ psychiatrist, token });
+        res.status(201).send({ token,role:psychiatrist }); // i removed sending the psychiatrist.
       }
     }
   }
@@ -72,7 +72,7 @@ router.post(
           return res.status(400).json({ msg: "Invalid Credentials" });
         }
         const token = await psychiatrist.generateAuthToken();
-        res.status(200).send({ psychiatrist, token });
+        res.status(200).send({ psychiatrist, token, role:psychiatrist.role });
       } catch (error) {
         console.error(error.message);
         res.status(500).send("Server Error");
@@ -92,5 +92,14 @@ router.get("/me", auth, (req, res) => {
     res.status(500).send(error);
   }
 });
+
+router.get("/",auth,async(req,res) => {
+  try {
+    const psychiatrist = await (Psychiatrist.findById(req.psychiatrist.id)).select("-password")
+    res.json(psychiatrist)
+  } catch (error) {
+    res.status(500).send("Internal Server Error")
+  }
+})
 
 module.exports = router;

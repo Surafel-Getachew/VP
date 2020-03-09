@@ -34,7 +34,7 @@ router.post(
         });
         const token = await user.generateAuthToken();
         await user.save();
-        res.json({ token }); // I removed to send {user}
+        res.json({ token,user }); // I removed to send {user}
       }
     }catch(error){
       res.status(500).json({msg:"Internal server error!"});
@@ -127,7 +127,7 @@ router.get("/",autho, async (req,res) => {
     const user = await User.findById(req.user.id).select("-password");
     res.json(user)
   } catch (error) {
-    console.error(error.message);
+    // console.error(error.message);
     res.status(500).send("Internal Server Error");
   }
   

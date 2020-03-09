@@ -16,6 +16,9 @@ const PsychiatristSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true
+    },role:{
+      type:String,
+      default:"psychiatrist"
     },
     date: {
       type: Date,
@@ -55,7 +58,7 @@ PsychiatristSchema.methods.generateAuthToken = async function() {
   const psychiatrist = this;
   try {
     const token = await jwt.sign(
-      { _id: psychiatrist.id.toString() },
+      { _id: psychiatrist.id.toString(),role:psychiatrist.role },
       config.get("jwtSecret")
     );
     psychiatrist.tokens = psychiatrist.tokens.concat({ token });

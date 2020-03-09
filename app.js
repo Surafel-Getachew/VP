@@ -23,7 +23,15 @@ app.use((req,res,next) => {
   res.header("Access-Control-Allow-Headers","X-Requested-With,X-HTTP-Method-Override, Content-Type,Accept, X-XSRF-TOKEN")
 
     next();
-})
+});
+
+// const checkUserType = (req,res,next) => {
+//   console.log(req.originalUrl.split("/"));
+//   next();
+// }
+
+// app.use(checkUserType);
+
 
 app.use("/vp/psychiatrist", psychiatrist);
 app.use("/vp/users", users);

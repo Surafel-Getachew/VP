@@ -11,10 +11,12 @@ module.exports = async function(req,res,next){
             const decoded = jwt.verify(token,config.get("jwtSecret"));
             const psychiatrist = await Psychiatrist.findOne({
                 _id:decoded._id,
-                "tokens.token":token
+                "tokens.token":token,
+                role:decoded.role
             });
             req.psychiatrist = psychiatrist
-            req.token = token
+            req.token = token,
+            req.role = psychiatrist.role
             next();
         } catch (error) {
             res.status(401).json({msg:"Token is not valid"});

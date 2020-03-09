@@ -24,6 +24,10 @@ const UserSchema = mongoose.Schema({
     type: Date,
     default: Date.now()
   },
+  role:{
+    type:String,
+    default:"user"
+  },
   tokens: [
     {
       token: {
@@ -61,7 +65,7 @@ UserSchema.pre("save", async function(next) {
 UserSchema.methods.generateAuthToken = async function() {
   const user = this;
   const token = await jwt.sign(
-    { _id: user._id.toString() },
+    { _id: user._id.toString(),role:user.role},
     config.get("jwtSecret")
   );
   user.tokens = user.tokens.concat({ token });
