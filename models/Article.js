@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 
 const ArticleSchema =  mongoose.Schema({
-    Header: {
+    title: {
         type:String,
         required:true,
     },
-    description:{
+    body:{
         type:String,
         required:true,
     },
-    Date:{
+    date:{
         type:Date,
         default:Date.now()
     },

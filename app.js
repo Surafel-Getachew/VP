@@ -62,3 +62,14 @@ app.listen(5000, () => {
 // };
 
 // main();
+
+// const Article = require("./models/Article");
+
+
+// const main = async () => {
+//   const article = await Article.findById("5e69cdf6d930d0e6480e00c3");
+//   await article.populate("owner").execPopulate();
+//   console.log(article.owner)
+// }
+
+// main();

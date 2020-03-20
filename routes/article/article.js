@@ -1,16 +1,18 @@
 const router = require("express").Router();
 const Article = require("../../models/Article");
+// const Article = require("../../models/Article");
 const auth = require("../../middleware/auth");
+const autho = require("../../middleware/autho");
 
 // post request
 // private route
-// create news
+// create Article
 router.post("/", auth, async (req, res) => {
-  const { Header, description } = req.body;
+  const { title, body } = req.body;
   try {
     const article = new Article({
-      Header,
-      description,
+      title,
+      body,
       owner: req.psychiatrist._id
     });
     await article.save();
@@ -19,71 +21,109 @@ router.post("/", auth, async (req, res) => {
     res.status(500).send(error);
   }
 });
-// get request
-// private route
-// get a single the article created.
 
-router.get("/:id",auth, async (req,res) => {
+
+
+// get request 
+// private route
+// read articles
+
+router.get("/",autho,async (req,res) => {
   try {
-    const article = await Article.findById(req.params.id);
-    await req.psychiatrist.populate("articles").execPopulate();
-    res.status(200).json(req.psychiatrist.article)
-    // const article = await Article.findById(req,params.id);
-    // await article.populate("owner").execPopulate();
-    // res.status(200).send(article.owner);
+    const article = await Article.find().sort({date:-1});
+    res.json(article)
   } catch (error) {
-    
+    console.error(error.message);
+    res.status(500).send("Internal server Error");
+  }
+})
+
+
+// get all the articles created by the psychiatrist
+
+router.get("/find",auth,async (req,res) => {
+  try {
+    await req.psychiatrist.populate("articles").execPopulate();
+    res.send(req.psychiatrist.articles)
+  } catch (error) {
+    res.status(500).send("Internal server error")
+  }
+})
+
+
+// get a single article that are created by the psychiatrist
+router.get("/:id",auth,async (req,res) => {
+  const _id = req.params.id
+  try {
+    const article = await Article.findOne({_id,owner:req.psychiatrist._id});
+    if(!article){
+      res.status(400).send("Cant find the article")
+    }
+    res.send(article)
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server error");
   }
 })
 
 
 
-// get request
-// private route
-// get all the news created
-router.get("/all", auth, async (req, res) => {
-  try {
-    await req.psychiatrist.populate("articles").execPopulate();
-    res.status(200).json({
-      article: req.psychiatrist.articles,
-      createdby: req.psychiatrist.name
-    });
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
 
 // patch request
 // private route
 // update route
 
+// router.patch("/:id", auth, async (req, res) => {
+//   const updates = Object.keys(req.body);
+//   const allowedUpdates = ["title", "body"];
+//   const isValidOperation = updates.every(update =>
+//     allowedUpdates.includes(update)
+//   );
+//   if (!isValidOperation) {
+//     return res.status(400).send("Invalid Updates");
+//   } else {
+//     const article = await Article.findOne({
+//       _id: req.params.id,
+//       owner: req.psychiatrist._id
+//     });
+//     if (!article) {
+//       res.status(400).send("Cant find article");
+//     }
+//     try {
+//       updates.forEach(update => {
+//         article[update] = req.body[update];
+//       });
+//       await article.save();
+//       res.send(article);
+//     } catch (error) {
+//       res.status(500).send(error);
+//     }
+//   }
+// });
+
+
+// ////////
+
 router.patch("/:id", auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["Header", "description"];
-  const isValidOperation = updates.every(update =>
-    allowedUpdates.includes(update)
-  );
-  if (!isValidOperation) {
-    return res.status(400).send("Invalid Updates");
-  } else {
-    const article = await Article.findOne({
-      _id: req.params.id,
-      owner: req.psychiatrist._id
-    });
+  try {
+    const article = await Article.findById(req.params.id);
+
     if (!article) {
-      res.status(400).send("Cant find article");
-    }
-    try {
+      res.status(400).send("cant find contact");
+    } else {
       updates.forEach(update => {
         article[update] = req.body[update];
       });
-      await article.save();
-      res.send(article);
-    } catch (error) {
-      res.status(500).send(error);
     }
+    await article.save();
+    res.json(article);
+  } catch (error) {
+    res.status(500).json({ msg: "Internal server Error" });
   }
 });
+
+
 
 //delete route
 // private route
@@ -98,9 +138,12 @@ router.delete("/:id", auth, async (req, res) => {
     if (!article) {
       res.status(400).send("Article not found");
     }
-    await article.save();
     res.status(200).send(article);
-  } catch (error) {}
+    await article.save();
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send("Internal Server Error")
+  }
 });
 
 module.exports = router;
