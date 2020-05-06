@@ -4,7 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js",
+    "dev": "nodemon app.js"
   },
   "repository": {
     "type": "git",
@@ -27,7 +29,15 @@
     "express-validator": "^6.4.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2",
     "path": "^0.12.7",
+    "sharp": "^0.25.2",
+    "socket.io": "^2.3.0",
+    "uws": "^100.0.1",
     "validator": "^12.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.3"
   }
 }

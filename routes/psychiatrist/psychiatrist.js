@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const sharp = require("sharp");
 const { check, validationResult } = require("express-validator/check");
 const bcrypt = require("bcryptjs");
 const auth = require("../../middleware/auth");
@@ -40,7 +42,7 @@ router.post(
         await psychiatrist.save();
 
         const token = await psychiatrist.generateAuthToken();
-        res.status(201).send({ token,role:psychiatrist }); // i removed sending the psychiatrist.
+        res.status(201).send({ token, role: psychiatrist }); // i removed sending the psychiatrist.
       }
     }
   }
@@ -72,7 +74,7 @@ router.post(
           return res.status(400).json({ msg: "Invalid Credentials" });
         }
         const token = await psychiatrist.generateAuthToken();
-        res.status(200).send({ psychiatrist, token, role:psychiatrist.role });
+        res.status(200).send({ psychiatrist, token, role: psychiatrist.role });
       } catch (error) {
         console.error(error.message);
         res.status(500).send("Server Error");
@@ -93,13 +95,77 @@ router.get("/me", auth, (req, res) => {
   }
 });
 
-router.get("/",auth,async(req,res) => {
+router.get("/", auth, async (req, res) => {
   try {
-    const psychiatrist = await (Psychiatrist.findById(req.psychiatrist.id)).select("-password")
-    res.json(psychiatrist)
+    const psychiatrist = await Psychiatrist.findById(
+      req.psychiatrist.id
+    ).select("-password");
+    res.json(psychiatrist);
   } catch (error) {
-    res.status(500).send("Internal Server Error")
+    res.status(500).send("Internal Server Error");
   }
-})
+});
+
+const upload = multer({
+  limits: {
+    fileSize: 1000000
+  },
+
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.jpg|jpeg|png/)) {
+      return cb(new Error("File must an image"));
+    }
+    cb(undefined, true);
+  }
+});
+
+router.post(
+  "/profilePic",
+  auth,
+  upload.single("avatar"),
+  async (req, res) => {
+    const buffer = await sharp(req.file.buffer)
+      .resize({ width: 250, height: 250 })
+      .png()
+      .toBuffer();
+
+    req.psychiatrist.avatar = buffer
+
+    await req.psychiatrist.save();
+
+    res.status(200).send();
+  },
+  (error, req, res, next) => {
+    res.status(400).json({ msg: error.message });
+  }
+);
+
+router.get("/profilePic", auth, async (req, res) => {
+  try {
+    const profile = await Psychiatrist.findById(req.psychiatrist._id);
+    res.set("Content-Type", "image/png");
+    res.status(200).send(profile.avatar);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+    console.log(error.message);
+  }
+});
+
+router.get("/profilePic/:id", async (req, res) => {
+  try {
+    const profile = await Psychiatrist.findById(req.params.id);
+    res.set("Content-Type", "image/png");
+    res.status(200).send(profile.avatar);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+    console.log(error.message);
+  }
+});
+
+router.delete("/profilePic", auth, async (req, res) => {
+  req.psychiatrist.avatar = undefined;
+  req.psychiatrist.save();
+  res.status(200).send();
+});
 
 module.exports = router;
