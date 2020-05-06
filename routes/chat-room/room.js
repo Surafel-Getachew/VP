@@ -2,8 +2,14 @@ const router = require("express").Router();
 const Room = require("../../models/chat-rooms/Room");
 
 router.get("/",async(req,res) => {
-    const room = await Room.find();
-    res.json({room});
+    try {
+        const room = await Room.find();
+        res.json(room);
+        
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Interanl server error")
+    }
 })
 
 router.post("/",async(req,res) => {
