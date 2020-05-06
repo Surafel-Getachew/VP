@@ -41,9 +41,20 @@ app.use("/vp/article",article);
 app.use("/vp/room",room);
 app.use("/vp/psychProfile",psychProfile);
 
+const weclomeMessage = "Welcome to virtual-psychiatrist chat room."
 
 io.on("connection", (socket) => {
-  console.log("socket test success")
+  socket.on("join",(roomName) => {
+    console.log(`A user has joined ${roomName}`);
+    socket.join(roomName);
+    socket.emit("message",weclomeMessage);
+    socket.broadcast.to(roomName).emit("message",`A user has joined`)
+  })
+
+  socket.on("send",(message) => {
+    io.to(message.room).emit("message",message.text);
+  })
+
 })
 
 
