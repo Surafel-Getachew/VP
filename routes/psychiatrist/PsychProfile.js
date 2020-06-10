@@ -4,12 +4,9 @@ const Psychiatrist = require("../../models/Psychiatrist");
 const auth = require("../../middleware/auth");
 const multer = require("multer");
 
-
-
-
 router.post("/",auth,async(req,res) => {
     
-    const { GraduatedFrom, work_experience, specialization } = req.body
+    const { basicInformation,about,contactDetails,services,specialization,education,experience,awards,memberships} = req.body
 
     try {
        const psychProfile = new PsychProfile({

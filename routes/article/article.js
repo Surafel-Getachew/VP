@@ -13,7 +13,8 @@ router.post("/", auth, async (req, res) => {
     const article = new Article({
       title,
       body,
-      owner: req.psychiatrist._id
+      owner: req.psychiatrist._id,
+     
     });
     await article.save();
     res.status(201).json(article);
