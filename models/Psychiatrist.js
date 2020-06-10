@@ -48,6 +48,12 @@ PsychiatristSchema.virtual("articles", {
   foreignField: "owner"
 });
 
+PsychiatristSchema.virtual("psychProfiles",{
+  ref:"psychProfile",
+  localField:"_id",
+  foreignField:"profileOwner"
+})
+
 PsychiatristSchema.methods.toJSON = function() {
   const psychiatrist = this;
   const psychiatristObject = psychiatrist.toObject();

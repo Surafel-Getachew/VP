@@ -39,7 +39,7 @@ app.use("/vp/psychiatrist/auth", auth);
 app.use("/vp/task", task);
 app.use("/vp/article",article);
 app.use("/vp/room",room);
-app.use("/vp/psychProfile",psychProfile);
+app.use("/vp/psych/profile",psychProfile);
 
 const weclomeMessage = "Welcome to virtual-psychiatrist chat room."
 

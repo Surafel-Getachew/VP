@@ -86,8 +86,12 @@ const PsychProfileSchema = mongoose.Schema({
         member:{
             type:String
         }
-    }]
-
+    }],
+    psychOwner: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "psychiatrist"
+    }
 
 })
 
