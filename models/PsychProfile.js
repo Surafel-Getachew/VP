@@ -3,16 +3,16 @@ const mongoose = require("mongoose");
 const PsychProfileSchema = mongoose.Schema({
 
     basicInformation:{
-        firstname:{
-            type:String,
-            required:true
+        firstname: {
+            type: String,
+            required: true
         },
         lastname: {
             type: String,
-            required:true
+            required: true
         },
-        dateofbirth:{
-            type:String
+        dateofbirth: {
+            type: String
         }
     },
     about:{
@@ -44,13 +44,13 @@ const PsychProfileSchema = mongoose.Schema({
             type:String
         }
     ],
-    specialization:[
+    specializations:[
         {
             type:String
         }
     ],
     education:[{
-        Degree:{
+        degree:{
             type:String,
         },
         college:{
@@ -60,7 +60,7 @@ const PsychProfileSchema = mongoose.Schema({
             type:String
         }
     }],
-    experience:[{
+    experiences:[{
         hospitalName:{
             type:String
         },
