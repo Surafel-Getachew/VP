@@ -4,92 +4,17 @@ const Psychiatrist = require("../../models/Psychiatrist");
 const auth = require("../../middleware/auth");
 const multer = require("multer");
 
-// router.post("/", auth, async (req, res) => {
-//   const {
-//     basicInformation,
-//     // firstname,
-//     // lastname,
-//     about,
-//     contactDetails,
-//     services,
-//     specialization,
-//     education,
-//     experience,
-//     awards,
-//     memberships,
-//   } = req.body;
-
-//   const profileFields = {
-//     basicInformation,
-//     // firstname,
-//     // lastname,
-//     about,
-//     contactDetails,
-//     services,
-//     specialization,
-//     education,
-//     experience,
-//     awards,
-//     memberships,
-//     psychOwner: req.psychiatrist._id,
-//   };
-
-//   try {
-//     let psychProfile = await PsychProfile.findOneAndUpdate(
-//       {
-//         psychOwner: req.psychiatrist._id,
-//       },
-//       { $set: profileFields },
-//       { new: true, upsert: true }
-//     );
-
-//     await psychProfile.save();
-//     res.status(201).json( psychProfile );
-//   } catch (error) {
-//     res.status(500).send(error);
-//     console.error(error.message);
-//   }
-// });
-
-// router.post("/", auth, async (req, res) => {
-//   const { firstname, lastname } = req.body;
-//   // const profileFields = {
-//   //   basicInformation,
-//   //   psychOwner:req.psychiatrist._id
-//   // };
-//   const profileFields = { psychOwner: req.psychiatrist._id };
-//   const basicInformationField = { firstname, lastname };
-//   profileFields.basicInformation = basicInformationField;
-//   for (const [key, value] of Object.entries(basicInformationField)) {
-//     if (value && value.length > 0) basicInformationField[key] = value;
-//   }
-//   profileFields.basicInformation = basicInformationField;
-//   try {
-//     let psychProfile = await PsychProfile.findOneAndUpdate(
-//       {
-//         psychOwner: req.psychiatrist._id,
-//       },
-//       { $set: profileFields },
-//       { new: true, upsert: true }
-//     );
-//     await psychProfile.save();
-//     res.status(201).json(psychProfile);
-//   } catch (error) {
-//     res.status(500).send(error);
-//     console.error(error.message);
-//   }
-// });
-
 router.post("/", auth, async (req, res) => {
   const {
     firstname,
     lastname,
+    about,
     address1,
     address2,
     city,
     state,
     country,
-    postaCode,
+    postalCode,
     services,
     specializations,
     degree,
@@ -101,23 +26,24 @@ router.post("/", auth, async (req, res) => {
     designation,
     award,
     year,
-    member,
-
-
+    memberships,
   } = req.body;
   const profileFields = {
+    about,
     services: Array.isArray(services)
       ? services
       : services.split(",").map((service) => "" + service.trim()),
     specializations: Array.isArray(specializations)
-      ? sepecializations
+      ? specializations
       : specializations
           .split(",")
           .map((specialization) => "" + specialization.trim()),
+    memberships: Array.isArray(memberships)
+      ? memberships
+      : memberships.split(",").map((memberships) => "" + memberships.trim()),
     education: [],
-    experiences:[],
-    awards:[],
-    memberships:[]
+    experiences: [],
+    awards: [],
   };
 
   const basicinfoFields = { firstname, lastname };
@@ -126,23 +52,28 @@ router.post("/", auth, async (req, res) => {
   }
   profileFields.basicInformation = basicinfoFields;
 
-  const addressFields = { address1, address2, city, state, country, postaCode };
+  const addressFields = {
+    address1,
+    address2,
+    city,
+    state,
+    country,
+    postalCode,
+  };
   for (const [key, value] of Object.entries(addressFields)) {
     if (value && value.lenth > 0) addressFields[key] = value;
   }
   profileFields.contactDetails = addressFields;
 
-  const newEdu = {degree,college,yearOfCompletion}
-  profileFields.education.unshift(newEdu)
- 
-  const newExp = {hospitalName,from,to,designation}
-  profileFields.experiences.unshift(newExp)
-  
-  const newAward = {award,year}
-  profileFields.awards.unshift(newAward)
-  
-  const newMemb = {member}
-  profileFields.memberships.unshift(newMemb);
+  const newEdu = { degree, college, yearOfCompletion };
+  profileFields.education.unshift(newEdu);
+
+  const newExp = { hospitalName, from, to, designation };
+  profileFields.experiences.unshift(newExp);
+
+  const newAward = { award, year };
+  profileFields.awards.unshift(newAward);
+
 
   try {
     let psychProfile = await PsychProfile.findOneAndUpdate(
