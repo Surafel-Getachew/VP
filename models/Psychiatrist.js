@@ -6,55 +6,61 @@ const PsychiatristSchema = mongoose.Schema(
     name: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     email: {
       type: String,
-      required: true
+      required: true,
     },
     password: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     role: {
       type: String,
-      default: "psychiatrist"
+      default: "psychiatrist",
     },
     date: {
       type: Date,
-      default: Date.now()
+      default: Date.now(),
     },
-    avatar:{
-      type:Buffer
+    avatar: {
+      type: Buffer,
     },
     tokens: [
       {
         token: {
           type: String,
-          required: true
-        }
-      }
-    ]
+          required: true,
+        },
+      },
+    ],
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
 PsychiatristSchema.virtual("articles", {
   ref: "article",
   localField: "_id",
-  foreignField: "owner"
+  foreignField: "owner",
 });
 
-PsychiatristSchema.virtual("psychProfiles",{
-  ref:"psychProfile",
-  localField:"_id",
-  foreignField:"profileOwner"
-})
+PsychiatristSchema.virtual("psychProfiles", {
+  ref: "psychProfile",
+  localField: "_id",
+  foreignField: "profileOwner",
+});
 
-PsychiatristSchema.methods.toJSON = function() {
+PsychiatristSchema.virtual("psychSocials", {
+  ref: "psychSocial",
+  localField: "_id",
+  foreignField: "owner",
+});
+
+PsychiatristSchema.methods.toJSON = function () {
   const psychiatrist = this;
   const psychiatristObject = psychiatrist.toObject();
 
@@ -65,7 +71,7 @@ PsychiatristSchema.methods.toJSON = function() {
   return psychiatristObject;
 };
 
-PsychiatristSchema.methods.generateAuthToken = async function() {
+PsychiatristSchema.methods.generateAuthToken = async function () {
   const psychiatrist = this;
   try {
     const token = await jwt.sign(

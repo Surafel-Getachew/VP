@@ -1,5 +1,9 @@
 {
-    "mongoURI":"mongodb://localhost:27017/VirtualPsychiatrist",
-    "jwtSecret":"jsonwebtokensecret",
-    "authorize":"roleeauthorizeesectett"
+  "mongoURI": "mongodb://localhost:27017/VirtualPsychiatrist",
+  "jwtSecret": "jsonwebtokensecret",
+  "JWT_SECRETE":"virtualpsychiatristsecret",
+  "authorize": "roleeauthorizeesectett",
+  "CLIENT_ID": "88513050295-peb5bai40q8mg78k6p6sn60t5qh16aod.apps.googleusercontent.com", 
+  "CLIENT_SECRETE": "ZGfkfhmmLwVbfzupXnOtq8Tp",
+  "SERVER_ADDRESS":"localhost:3000"
 }

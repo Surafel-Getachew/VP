@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const sharp = require("sharp");
+// const sharp = require("sharp");
 const { check, validationResult } = require("express-validator/check");
 const bcrypt = require("bcryptjs");
 const auth = require("../../middleware/auth");
@@ -82,6 +82,17 @@ router.post(
     }
   }
 );
+
+
+router.get("/all",async(req,res) => {
+  try {
+    const psych = await Psychiatrist.find().select("-password");
+    res.status(200).json(psych);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+})
+
 
 // get a single profile
 // private

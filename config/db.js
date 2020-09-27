@@ -10,6 +10,7 @@ const connectDB = async () => {
       useFindAndModify: true,
       useUnifiedTopology: true
     });
+
     console.log("connected to mongoDB");
   } catch (error) {
     console.log(error.message);
