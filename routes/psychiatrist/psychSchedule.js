@@ -8,9 +8,9 @@ router.get("/", async (req, res) => {
   // });
   // const {monday} = req.body;
   // psychData.monday.forEach((psych) => {
-  //   const oldEndTime = new Date(psych.end).getHours();
+  //   const oldoldEndTime = new Date(psych.end).getHours();
   //   const newStartTime = new Date(monday.start).getHours();
-  //   if (newStartTime < oldEndTime){
+  //   if (newStartTime < oldoldEndTime){
   //     return res.status(401).send("Invalid Date")
   //   }
   //     PsychSchedule.create({
@@ -23,31 +23,31 @@ router.get("/", async (req, res) => {
   //   // console.log(time.getHours());
   // });
 });
-const validateSchedule = async (id, newTime) => {
-  const schedules = await PsychSchedule.findOne({ psychSchedule: id });
-  const newStartTime = new Date(newTime).getHours();
-  console.log("id", id);
-  // await Promise.all(
-  schedules.monday.forEach((schedule) => {
-    const oldEndTime = new Date(schedule.end).getHours();
+// const validateSchedule = async (id, newStartTime) => {
+//   const schedules = await PsychSchedule.findOne({ psychSchedule: id });
+//   const newStartTime = new Date(newStartTime).getHours();
+//   console.log("id", id);
+//   // await Promise.all(
+//   schedules.monday.forEach((schedule) => {
+//     const oldoldEndTime = new Date(schedule.end).getHours();
 
-    console.log("new Time", newStartTime);
-    console.log("old time", oldEndTime);
-    if (newStartTime < oldEndTime) {
-      console.log("Failure");
-      return false;
-    } else {
-      console.log("Success");
-      return true;
-    }
-  });
-  // );
-};
+//     console.log("new Time", newStartTime);
+//     console.log("old time", oldoldEndTime);
+//     if (newStartTime < oldoldEndTime) {
+//       console.log("Failure");
+//       return false;
+//     } else {
+//       console.log("Success");
+//       return true;
+//     }
+//   });
+//   // );
+// };
 
 let validationResult;
 
-const validateDate = async (id, newTime) => {
-  const newScheduleStart = new Date(newTime).getHours();
+const validateDate = async (id, newStartTime) => {
+  const newScheduleStart = new Date(newStartTime).getHours();
   const oldScheduleEnd = await PsychSchedule.findOne({ psychSchedule: id });
   if (oldScheduleEnd) {
     console.log("theres is in the db");
@@ -95,7 +95,7 @@ router.post("/", auth, async (req, res) => {
     saturday,
     sunday,
   } = req.body;
-  const newTime = req.body.monday[0].start;
+  const newStartTime = req.body.monday[0].start;
   console.log("req.body", req.body.monday[0].start);
   console.log("req.ps", req.psychiatrist._id);
   let result;
@@ -106,17 +106,13 @@ router.post("/", auth, async (req, res) => {
   if (schedules == null) {
     result = true;
   } else {
-     schedules.monday.forEach((schedule) => {
-      const endTime = new Date(schedule.end).getHours();
-      const newSchdueleTime = new Date(newTime).getHours();
-      if (endTime > newSchdueleTime) {
-        console.log(
-          "newScheduleStart",
-          newSchdueleTime,
-          " : ",
-          "oldScheduleHour",
-          endTime
-        );
+    schedules.monday.forEach((schedule) => {
+      const oldEndTime = new Date(schedule.end).getHours();
+      const oldStartTime = new Date(schedule.start).getHours();
+      const newSchdueleTime = new Date(newStartTime).getHours();
+      // if (oldEndTime > newSchdueleTime) {
+      if (newSchdueleTime > oldStartTime && newSchdueleTime < oldEndTime) {
+        console.log(oldStartTime,"<-",newSchdueleTime,"->",oldEndTime);
         console.log("failure");
         result = false;
       } else {
@@ -125,7 +121,7 @@ router.post("/", auth, async (req, res) => {
           newSchdueleTime,
           " : ",
           "oldScheduleHour",
-          endTime
+          oldEndTime
         );
         console.log("success");
         result = true;
@@ -133,7 +129,7 @@ router.post("/", auth, async (req, res) => {
     });
   }
 
-  // const validation = validateDate(req.psychiatrist._id, newTime);
+  // const validation = validateDate(req.psychiatrist._id, newStartTime);
   // console.log("validation result", validation);
   console.log(result);
   if (result) {
