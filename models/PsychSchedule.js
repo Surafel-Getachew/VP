@@ -6,12 +6,6 @@ const PsychScheduleSchema = mongoose.Schema({
     required: true,
     ref: "psychiatrist",
   },
-  // theDay: [
-  //   {
-  //     type: Number,
-  //     required: true,
-  //   },
-  // ],
   monday: [
     {
       start: {

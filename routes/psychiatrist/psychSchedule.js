@@ -2,10 +2,16 @@ const router = require("express").Router();
 const moment = require("moment");
 const auth = require("../../middleware/auth");
 const PsychSchedule = require("../../models/PsychSchedule");
+const { modelName } = require("../../models/PsychSchedule");
 router.get("/", async (req, res) => {
   // const psychData = await PsychSchedule.findOne({
   //   psychSchedule: "5f5739c8f617f54354338ee5",
+
   // });
+  const psychData = await PsychSchedule.findOne({
+    psychSchedule: "5f5739c8f617f54354338ee5",
+  });
+  res.send(psychData.monday);
   // const {monday} = req.body;
   // psychData.monday.forEach((psych) => {
   //   const oldoldEndTime = new Date(psych.end).getHours();
@@ -95,8 +101,12 @@ router.post("/", auth, async (req, res) => {
     saturday,
     sunday,
   } = req.body;
-  const newStartTime = req.body.monday[0].start;
-  console.log("req.body", req.body.monday[0].start);
+  let theDay;
+  for (const day in req.body) {
+    // console.log("req.body",days);
+    theDay = day;
+  }
+  const newStartTime = req.body[theDay][0].start;
   console.log("req.ps", req.psychiatrist._id);
   let result;
   const schedules = await PsychSchedule.findOne({
@@ -106,51 +116,59 @@ router.post("/", auth, async (req, res) => {
   if (schedules == null) {
     result = true;
   } else {
-    schedules.monday.forEach((schedule) => {
-      const oldEndTime = new Date(schedule.end).getHours();
-      const oldStartTime = new Date(schedule.start).getHours();
-      const newSchdueleTime = new Date(newStartTime).getHours();
-      // if (oldEndTime > newSchdueleTime) {
-      if (newSchdueleTime > oldStartTime && newSchdueleTime < oldEndTime) {
-        console.log(oldStartTime,"<-",newSchdueleTime,"->",oldEndTime);
-        console.log("failure");
-        result = false;
-      } else {
-        console.log(
-          "newScheduleStart",
-          newSchdueleTime,
-          " : ",
-          "oldScheduleHour",
-          oldEndTime
-        );
-        console.log("success");
-        result = true;
-      }
-    });
+    if (schedules[theDay] == null) {
+      console.log("schedules.theday stage");
+      result = true;
+    } else {
+      schedules[theDay].forEach((schedule) => {
+        const oldEndTime = new Date(schedule.end).getHours();
+        const oldStartTime = new Date(schedule.start).getHours();
+        const newSchdueleTime = new Date(newStartTime).getHours();
+        // if (oldEndTime > newSchdueleTime) {
+        if (newSchdueleTime > oldStartTime && newSchdueleTime < oldEndTime) {
+          console.log(oldStartTime, "<-", newSchdueleTime, "->", oldEndTime);
+          console.log("failure");
+          result = false;
+        } else {
+          console.log(
+            "newScheduleStart",
+            newSchdueleTime,
+            " : ",
+            "oldScheduleHour",
+            oldEndTime
+          );
+          console.log("success");
+          result = true;
+        }
+      });
+    }
   }
-
-  // const validation = validateDate(req.psychiatrist._id, newStartTime);
-  // console.log("validation result", validation);
   console.log(result);
   if (result) {
     try {
+      const pushValue = req.body[theDay];
+      console.log("check", theDay);
+      console.log("req.body:", req.body[theDay]);
+      console.log("push value:", pushValue);
       let psychSchedule = await PsychSchedule.findOneAndUpdate(
         {
           psychSchedule: req.psychiatrist._id,
         },
         {
           $push: {
-            monday,
-            tuesday,
-            wednesday,
-            thursday,
-            friday,
-            saturday,
-            sunday,
+            [theDay]: pushValue,
+            // monday,
+            // tuesday,
+            // wednesday,
+            // thursday,
+            // friday,
+            // saturday,
+            // sunday,
           },
         }
       );
       if (!psychSchedule) {
+        console.log("create stage");
         const psychSchedule = await PsychSchedule.create({
           psychSchedule: req.psychiatrist._id,
           monday,
@@ -169,7 +187,7 @@ router.post("/", auth, async (req, res) => {
       res.status(500).send("Internal Server Error");
     }
   } else {
-    res.status(400).send("Invalid date");
+    res.status(400).json({ msg: "The Date you entered is in between." });
   }
 });
 
