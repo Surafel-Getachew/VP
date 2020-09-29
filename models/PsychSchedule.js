@@ -26,7 +26,7 @@ const PsychScheduleSchema = mongoose.Schema({
       //   },
     },
   ],
-  tuseday: [
+  tuesday: [
     {
       start: {
         type: Date,

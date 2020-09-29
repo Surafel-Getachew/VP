@@ -112,30 +112,36 @@ router.post("/", auth, async (req, res) => {
   const schedules = await PsychSchedule.findOne({
     psychSchedule: req.psychiatrist._id,
   });
-
+  // console.log("check first",schedules[theDay]);
   if (schedules == null) {
     result = true;
   } else {
-    if (schedules[theDay] == null) {
-      console.log("schedules.theday stage");
+    if (schedules[theDay].length == 0) {
       result = true;
     } else {
+      console.log("the second schedule of the day:", schedules[theDay]);
       schedules[theDay].forEach((schedule) => {
-        const oldEndTime = new Date(schedule.end).getHours();
-        const oldStartTime = new Date(schedule.start).getHours();
-        const newSchdueleTime = new Date(newStartTime).getHours();
+        const oldEndHr = new Date(schedule.end).getHours();
+        const oldEndMin = new Date(schedule.end).getMinutes();
+        const oldStartHr = new Date(schedule.start).getHours();
+        const oldStartMin = new Date(schedule.start).getMinutes();
+        const newSchdueleHr = new Date(newStartTime).getHours();
+        const newSchdueleMin = new Date(newStartTime).getMinutes();
+        const oldEndHrMin = parseInt(""+oldEndHr+oldEndMin);
+        const oldStartHrMin = parseInt(""+oldStartHr+oldStartMin);
+        const newSchedule = parseInt(""+newSchdueleHr+newSchdueleMin)
         // if (oldEndTime > newSchdueleTime) {
-        if (newSchdueleTime > oldStartTime && newSchdueleTime < oldEndTime) {
-          console.log(oldStartTime, "<-", newSchdueleTime, "->", oldEndTime);
+        if (newSchedule > oldStartHrMin && newSchedule <= oldEndHrMin) {
+          console.log(oldStartHrMin, "<-", newSchedule, "->", oldEndHrMin);
           console.log("failure");
           result = false;
         } else {
           console.log(
             "newScheduleStart",
-            newSchdueleTime,
+            newSchedule,
             " : ",
             "oldScheduleHour",
-            oldEndTime
+            oldEndHrMin
           );
           console.log("success");
           result = true;
@@ -172,6 +178,7 @@ router.post("/", auth, async (req, res) => {
         const psychSchedule = await PsychSchedule.create({
           psychSchedule: req.psychiatrist._id,
           monday,
+          tuesday,
           wednesday,
           thursday,
           friday,
