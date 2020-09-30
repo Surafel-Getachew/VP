@@ -3,94 +3,7 @@ const moment = require("moment");
 const auth = require("../../middleware/auth");
 const PsychSchedule = require("../../models/PsychSchedule");
 const { modelName } = require("../../models/PsychSchedule");
-router.get("/", async (req, res) => {
-  // const psychData = await PsychSchedule.findOne({
-  //   psychSchedule: "5f5739c8f617f54354338ee5",
 
-  // });
-  const psychData = await PsychSchedule.findOne({
-    psychSchedule: "5f5739c8f617f54354338ee5",
-  });
-  res.send(psychData.monday);
-  // const {monday} = req.body;
-  // psychData.monday.forEach((psych) => {
-  //   const oldoldEndTime = new Date(psych.end).getHours();
-  //   const newStartTime = new Date(monday.start).getHours();
-  //   if (newStartTime < oldoldEndTime){
-  //     return res.status(401).send("Invalid Date")
-  //   }
-  //     PsychSchedule.create({
-  //       psychSchedule:"5f5739c8f617f54354338ee5",
-  //       monday
-  //     }).then((schedule,error) => {
-  //       schedule.save();
-  //      res.status(200).send(schedule)
-  //     });
-  //   // console.log(time.getHours());
-  // });
-});
-// const validateSchedule = async (id, newStartTime) => {
-//   const schedules = await PsychSchedule.findOne({ psychSchedule: id });
-//   const newStartTime = new Date(newStartTime).getHours();
-//   console.log("id", id);
-//   // await Promise.all(
-//   schedules.monday.forEach((schedule) => {
-//     const oldoldEndTime = new Date(schedule.end).getHours();
-
-//     console.log("new Time", newStartTime);
-//     console.log("old time", oldoldEndTime);
-//     if (newStartTime < oldoldEndTime) {
-//       console.log("Failure");
-//       return false;
-//     } else {
-//       console.log("Success");
-//       return true;
-//     }
-//   });
-//   // );
-// };
-
-let validationResult;
-
-const validateDate = async (id, newStartTime) => {
-  const newScheduleStart = new Date(newStartTime).getHours();
-  const oldScheduleEnd = await PsychSchedule.findOne({ psychSchedule: id });
-  if (oldScheduleEnd) {
-    console.log("theres is in the db");
-    oldScheduleEnd.monday.forEach((schedule) => {
-      const oldScheduleHour = new Date(schedule.end).getHours();
-      if (newScheduleStart < oldScheduleHour) {
-        console.log(
-          "newScheduleStart",
-          newScheduleStart,
-          " : ",
-          "oldScheduleHour",
-          oldScheduleHour
-        );
-        // console.log("failed")
-        return false;
-        // validationResult = "failed"
-      } else {
-        // console.log("success")
-        console.log(
-          "newScheduleStart",
-          newScheduleStart,
-          " : ",
-          "oldScheduleHour",
-          oldScheduleHour
-        );
-        return true;
-        // validationResult = "success"
-      }
-    });
-  } else {
-    // validationResult = "success"
-    // console.log("ntn in db");
-    return true;
-  }
-};
-
-// validateSchedule();
 router.post("/", auth, async (req, res) => {
   const {
     monday,
@@ -127,9 +40,9 @@ router.post("/", auth, async (req, res) => {
         const oldStartMin = new Date(schedule.start).getMinutes();
         const newSchdueleHr = new Date(newStartTime).getHours();
         const newSchdueleMin = new Date(newStartTime).getMinutes();
-        const oldEndHrMin = parseInt(""+oldEndHr+oldEndMin);
-        const oldStartHrMin = parseInt(""+oldStartHr+oldStartMin);
-        const newSchedule = parseInt(""+newSchdueleHr+newSchdueleMin)
+        const oldEndHrMin = parseInt("" + oldEndHr + oldEndMin);
+        const oldStartHrMin = parseInt("" + oldStartHr + oldStartMin);
+        const newSchedule = parseInt("" + newSchdueleHr + newSchdueleMin);
         // if (oldEndTime > newSchdueleTime) {
         if (newSchedule > oldStartHrMin && newSchedule <= oldEndHrMin) {
           console.log(oldStartHrMin, "<-", newSchedule, "->", oldEndHrMin);
@@ -198,22 +111,21 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-router.post("/add", auth, async (req, res) => {
-  const { monday } = req.body;
+router.get("/my-schedule/:date", auth, async (req, res) => {
   try {
-    const schedule = await PsychSchedule.create({
-      monday,
+    const schedule = await PsychSchedule.findOne({
+      psychSchedule: req.psychiatrist._id,
     });
-  } catch (error) {}
+    const todaysSchedule = schedule[req.params.date];
+    console.log(todaysSchedule);
+    if (todaysSchedule.length == 0) {
+      res.status(204).json({ msg: "No appointment today." });
+    } else {
+      res.status(200).json(todaysSchedule);
+    }
+  } catch (error) {
+    res.status(500).send("Internal server error.");
+  }
 });
 
 module.exports = router;
-
-// {
-//     "monday":[
-//         {
-//             "start":"2020-09-26T08:00:00.860+00:00",
-//             "end":"2020-09-26T10:00:00.480+00:00"
-//         }
-//     ]
-// }
