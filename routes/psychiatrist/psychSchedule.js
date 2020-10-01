@@ -44,7 +44,7 @@ router.post("/", auth, async (req, res) => {
         const oldStartHrMin = parseInt("" + oldStartHr + oldStartMin);
         const newSchedule = parseInt("" + newSchdueleHr + newSchdueleMin);
         // if (oldEndTime > newSchdueleTime) {
-        if (newSchedule > oldStartHrMin && newSchedule <= oldEndHrMin) {
+        if (newSchedule >= oldStartHrMin && newSchedule <= oldEndHrMin) {
           console.log(oldStartHrMin, "<-", newSchedule, "->", oldEndHrMin);
           console.log("failure");
           result = false;
@@ -118,11 +118,13 @@ router.get("/my-schedule/:date", auth, async (req, res) => {
     });
     const todaysSchedule = schedule[req.params.date];
     console.log(todaysSchedule);
-    if (todaysSchedule.length == 0) {
-      res.status(204).json({ msg: "No appointment today." });
-    } else {
-      res.status(200).json(todaysSchedule);
-    }
+    // if (todaysSchedule.length == 0) {
+    //   res.status(400).json({ msg: "No appointment today." });
+    //   // res.status(200);
+    // } else {
+    //   res.status(200).json(todaysSchedule);
+    // }
+    res.status(200).json(todaysSchedule);
   } catch (error) {
     res.status(500).send("Internal server error.");
   }
