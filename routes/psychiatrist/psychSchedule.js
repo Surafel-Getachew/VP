@@ -117,6 +117,7 @@ router.get("/my-schedule/:date", auth, async (req, res) => {
       psychSchedule: req.psychiatrist._id,
     });
     const todaysSchedule = schedule[req.params.date];
+
     console.log(todaysSchedule);
     // if (todaysSchedule.length == 0) {
     //   res.status(400).json({ msg: "No appointment today." });
@@ -127,6 +128,21 @@ router.get("/my-schedule/:date", auth, async (req, res) => {
     res.status(200).json(todaysSchedule);
   } catch (error) {
     res.status(500).send("Internal server error.");
+  }
+});
+
+router.delete("/my-schedule/:day/:id", auth, async (req, res) => {
+  const day = req.params.day;
+  const schedule = await PsychSchedule.update(
+    {
+      psychSchedule: req.psychiatrist._id,
+    },
+    { $pull: { [day]: { _id: req.params.id } } }
+  );
+  if (!schedule) {
+    res.status(400).json({ msg: "Schedule not found." });
+  } else {
+    res.status(200).json({ schedule });
   }
 });
 
