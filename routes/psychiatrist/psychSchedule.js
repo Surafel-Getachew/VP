@@ -38,11 +38,31 @@ router.post("/", auth, async (req, res) => {
         const oldEndMin = new Date(schedule.end).getMinutes();
         const oldStartHr = new Date(schedule.start).getHours();
         const oldStartMin = new Date(schedule.start).getMinutes();
-        const newSchdueleHr = new Date(newStartTime).getHours();
-        const newSchdueleMin = new Date(newStartTime).getMinutes();
-        const oldEndHrMin = parseInt("" + oldEndHr + oldEndMin);
-        const oldStartHrMin = parseInt("" + oldStartHr + oldStartMin);
-        const newSchedule = parseInt("" + newSchdueleHr + newSchdueleMin);
+        const newScheduleHr = new Date(newStartTime).getHours();
+        const newScheduleMin = new Date(newStartTime).getMinutes();
+        // if saved old min is less than 9 add 0 to the end of it.
+        let oldEndHrMin;
+        let oldStartHrMin;
+        let newSchedule
+        if (oldEndMin <= 0) {
+          oldEndHrMin = parseInt("" + oldEndHr + oldEndMin + 0);
+        } else {
+          oldEndHrMin = parseInt("" + oldEndHr + oldEndMin);
+        }
+        if (oldStartMin <= 0) {
+          oldStartHrMin = parseInt("" + oldStartHr + oldStartMin + 0);
+        } else {
+          oldStartHrMin = parseInt("" + oldStartHr + oldStartMin);
+        }
+        if (newScheduleMin <= 0) {
+          newSchedule = parseInt(""+ newScheduleHr + newScheduleMin + 0);
+          console.log("newSchedule",newSchedule);
+        } else {
+          newSchedule = parseInt(""+ newScheduleHr + newScheduleMin);
+        }
+        // const oldEndHrMin = parseInt("" + oldEndHr + oldEndMin);
+        // const oldStartHrMin = parseInt("" + oldStartHr + oldStartMin);
+        // const newSchedule = parseInt("" + newSchduleHr + newSchedule);
         // if (oldEndTime > newSchdueleTime) {
         if (newSchedule >= oldStartHrMin && newSchedule <= oldEndHrMin) {
           console.log(oldStartHrMin, "<-", newSchedule, "->", oldEndHrMin);
@@ -50,13 +70,22 @@ router.post("/", auth, async (req, res) => {
           result = false;
         } else {
           console.log(
-            "newScheduleStart",
             newSchedule,
-            " : ",
-            "oldScheduleHour",
+            ">=",
+            oldStartHrMin,
+            "&&",
+            newSchedule,
+            "<=",
             oldEndHrMin
           );
-          console.log("success");
+          // console.log(
+          //   "newScheduleStart",
+          //   newSchedule,
+          //   " : ",
+          //   "oldScheduleHour",
+          //   oldEndHrMin
+          // );
+          // console.log("success");
           result = true;
         }
       });
