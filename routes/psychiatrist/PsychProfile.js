@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const PsychProfile = require("../../models/PsychProfile");
+const PsychProfile = require("../../models/Psychiatrist/psych-profile/PsychProfile");
 const Psychiatrist = require("../../models/Psychiatrist");
 const auth = require("../../middleware/auth");
 const multer = require("multer");

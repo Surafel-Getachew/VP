@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const moment = require("moment");
 const auth = require("../../middleware/auth");
-const PsychSchedule = require("../../models/PsychSchedule");
-const { modelName } = require("../../models/PsychSchedule");
+const PsychSchedule = require("../../models//Psychiatrist/psych-schedule/PsychSchedule");
+// const { modelName } = require("../../models/PsychSchedule");
 
 router.post("/", auth, async (req, res) => {
   const {
@@ -43,7 +43,7 @@ router.post("/", auth, async (req, res) => {
         // if saved old min is less than 9 add 0 to the end of it.
         let oldEndHrMin;
         let oldStartHrMin;
-        let newSchedule
+        let newSchedule;
         if (oldEndMin <= 0) {
           oldEndHrMin = parseInt("" + oldEndHr + oldEndMin + 0);
         } else {
@@ -55,10 +55,10 @@ router.post("/", auth, async (req, res) => {
           oldStartHrMin = parseInt("" + oldStartHr + oldStartMin);
         }
         if (newScheduleMin <= 0) {
-          newSchedule = parseInt(""+ newScheduleHr + newScheduleMin + 0);
-          console.log("newSchedule",newSchedule);
+          newSchedule = parseInt("" + newScheduleHr + newScheduleMin + 0);
+          console.log("newSchedule", newSchedule);
         } else {
-          newSchedule = parseInt(""+ newScheduleHr + newScheduleMin);
+          newSchedule = parseInt("" + newScheduleHr + newScheduleMin);
         }
         // const oldEndHrMin = parseInt("" + oldEndHr + oldEndMin);
         // const oldStartHrMin = parseInt("" + oldStartHr + oldStartMin);

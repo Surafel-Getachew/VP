@@ -1,7 +1,9 @@
 const router = require("express").Router();
-const PsychSocial = require("../../models/PsychSocial");
+const PsychSocial = require("../../models/Psychiatrist/psych-social/PsychSocial");
 const auth = require("../../middleware/auth");
-const { findOneAndUpdate } = require("../../models/PsychSocial");
+const {
+  findOneAndUpdate,
+} = require("../../models//Psychiatrist/psych-social/PsychSocial");
 
 router.post("/", auth, async (req, res) => {
   const { facebook, twitter, youtube, linkedin, instagram } = req.body;
