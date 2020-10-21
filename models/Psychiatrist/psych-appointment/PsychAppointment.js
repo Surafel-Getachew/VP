@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const PsychAppointmentSchema = mongoose.Schema({
     psychAppointedTo: {
-        type:mongoose.SchemaType.ObjectId,
+        type:mongoose.SchemaTypess.ObjectId,
         required:true,
         ref:"psychiatrist"
     },
@@ -18,7 +18,7 @@ const PsychAppointmentSchema = mongoose.Schema({
             },
             appointedBy: {
                 requirded:true,
-                type:mongoose.SchemaType.ObjectId,
+                type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
             }
         }
@@ -35,7 +35,7 @@ const PsychAppointmentSchema = mongoose.Schema({
             },
             appointedBy: {
                 required:true,
-                type:mongoose.SchemaType.ObjectId,
+                type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
             }
         }
@@ -52,7 +52,7 @@ const PsychAppointmentSchema = mongoose.Schema({
             },
             appointedBy: {
                 required:true,
-                type:mongoose.SchemaType.ObjectId,
+                type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
             }
         }
@@ -69,7 +69,7 @@ const PsychAppointmentSchema = mongoose.Schema({
             },
             appointedBy: {
                 required:true,
-                type:mongoose.SchemaType.ObjectId,
+                type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
             }
         }
@@ -86,7 +86,7 @@ const PsychAppointmentSchema = mongoose.Schema({
             },
             appointedBy: {
                 required:true,
-                type:mongoose.SchemaType.ObjectId,
+                type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
             }
         }
@@ -103,7 +103,7 @@ const PsychAppointmentSchema = mongoose.Schema({
             },
             appointedBy: {
                 required:true,
-                type:mongoose.SchemaType.ObjectId,
+                type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
             }
         }
@@ -120,7 +120,7 @@ const PsychAppointmentSchema = mongoose.Schema({
             },
             appointedBy: {
                 required:true,
-                type:mongoose.SchemaType.ObjectId,
+                type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
             }
         }

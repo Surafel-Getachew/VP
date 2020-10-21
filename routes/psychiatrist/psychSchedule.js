@@ -5,6 +5,7 @@ const PsychSchedule = require("../../models//Psychiatrist/psych-schedule/PsychSc
 // const { modelName } = require("../../models/PsychSchedule");
 
 router.post("/", auth, async (req, res) => {
+  console.log("req.body",req.body);
   const {
     monday,
     tuesday,
@@ -32,7 +33,7 @@ router.post("/", auth, async (req, res) => {
     if (schedules[theDay].length == 0) {
       result = true;
     } else {
-      console.log("the second schedule of the day:", schedules[theDay]);
+      // console.log("the second schedule of the day:", schedules[theDay]);
       schedules[theDay].forEach((schedule) => {
         const oldEndHr = new Date(schedule.end).getHours();
         const oldEndMin = new Date(schedule.end).getMinutes();
@@ -65,19 +66,19 @@ router.post("/", auth, async (req, res) => {
         // const newSchedule = parseInt("" + newSchduleHr + newSchedule);
         // if (oldEndTime > newSchdueleTime) {
         if (newSchedule >= oldStartHrMin && newSchedule <= oldEndHrMin) {
-          console.log(oldStartHrMin, "<-", newSchedule, "->", oldEndHrMin);
-          console.log("failure");
+          // console.log(oldStartHrMin, "<-", newSchedule, "->", oldEndHrMin);
+          // console.log("failure");
           result = false;
         } else {
-          console.log(
-            newSchedule,
-            ">=",
-            oldStartHrMin,
-            "&&",
-            newSchedule,
-            "<=",
-            oldEndHrMin
-          );
+          // console.log(
+          //   newSchedule,
+          //   ">=",
+          //   oldStartHrMin,
+          //   "&&",
+          //   newSchedule,
+          //   "<=",
+          //   oldEndHrMin
+          // );
           // console.log(
           //   "newScheduleStart",
           //   newSchedule,
@@ -91,7 +92,7 @@ router.post("/", auth, async (req, res) => {
       });
     }
   }
-  console.log(result);
+  // console.log(result);
   if (result) {
     try {
       const pushValue = req.body[theDay];
@@ -116,7 +117,7 @@ router.post("/", auth, async (req, res) => {
         }
       );
       if (!psychSchedule) {
-        console.log("create stage");
+        // console.log("create stage");
         const psychSchedule = await PsychSchedule.create({
           psychSchedule: req.psychiatrist._id,
           monday,
@@ -147,7 +148,7 @@ router.get("/my-schedule/:date", auth, async (req, res) => {
     });
     const todaysSchedule = schedule[req.params.date];
 
-    console.log(todaysSchedule);
+    // console.log(todaysSchedule);
     // if (todaysSchedule.length == 0) {
     //   res.status(400).json({ msg: "No appointment today." });
     //   // res.status(200);
