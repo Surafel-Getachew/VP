@@ -1,0 +1,74 @@
+<!-- views/email.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Virtual Psychiatrist</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: Circular, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+      .content {
+        padding: 60px 0;
+        width: 60vw;
+        margin: 0 auto;
+      }
+      .org {
+        color: #40a9ff;
+        letter-spacing: 1.5px;
+      }
+      .hello {
+        font-size: 40px;
+        color: rgb(0, 0, 0);
+        line-height: 45px;
+        letter-spacing: -0.04em;
+        text-align: center;
+      }
+      .emailInfo {
+        font-weight: 400;
+        text-decoration: none;
+        letter-spacing: 0.15px;
+        color: rgb(24, 24, 24);
+        font-size: 14px;
+        line-height: 20px;
+        text-align: initial;
+        margin-top: 1rem;
+      }
+      .emailInfo span {
+        color: #40a9ff;
+        font-weight: bold;
+      }
+      .resetlink {
+        color: #40a9ff;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content">
+      <h2 class="org">Virtual Psychiatrist</h2>
+
+      <h2 class="hello">Hello.</h2>
+      <div>
+        <p class="emailInfo">
+          No need to worry, you can reset your
+          <span>virtual Psychiatrist</span> password by clicking<br />
+          the link below:<br />
+          <span class="resetlink"
+            ><a href="<%= resetlink %>">Reset pasword</a></span
+          >
+          <br />
+          if you didn't request a password reset,feel free to delete this email
+          and carry on using virtual psychiatrist.<br /><br />
+          All the best,<br />
+          The Virtual Psychiatrist Team.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
