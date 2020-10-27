@@ -1,5 +1,6 @@
 const UserAppointment = require("../../../models/User/user-appointment/UserAppointment");
 const PsychSchedule = require("../../../models/Psychiatrist/psych-schedule/PsychSchedule");
+const PsychAppointment = require("../../../models/Psychiatrist/psych-appointment/PsychAppointment");
 const createUserAppt = async (userAppointedId, reqBody) => {
   const {
     monday,
@@ -152,9 +153,49 @@ const validateWithPsychSchedule = async(info) => {
   }
 }
 
+const addPsychAppointment = async(info) => {
+  const {appointedTo,theDay,startTime,endTime,appointedBy} = info;
+  const psychAppt = await PsychAppointment.findOne({
+    psychAppointedTo:appointedTo
+  });
+  if (psychAppt == null){
+    const appointment = await PsychAppointment.create({
+      psychAppointedTo:appointedTo,
+      [theDay]:[{
+        start:startTime,
+        end:endTime,
+        appointedBy:appointedBy
+      }
+      ]
+    });
+    await appointment.save();
+    return true;
+  } else {
+    
+    let appointment = await PsychAppointment.findOneAndUpdate(
+      {
+        psychAppointedTo:appointedTo
+      },
+      {
+        $push : {
+          [theDay]:[{
+            start:startTime,
+            end:endTime,
+            appointedBy:appointedBy
+          }]
+        }
+      }
+    )
+    await appointment.save();
+    true;
+  }
+}
+
+
 module.exports = {
   createUserAppt,
   updateUserAppt,
   validateUserAppt,
-  validateWithPsychSchedule
+  validateWithPsychSchedule,
+  addPsychAppointment
 };

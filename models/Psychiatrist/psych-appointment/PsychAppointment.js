@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const PsychAppointmentSchema = mongoose.Schema({
     psychAppointedTo: {
-        type:mongoose.SchemaTypess.ObjectId,
+        type:mongoose.SchemaTypes.ObjectId,
         required:true,
         ref:"psychiatrist"
     },
