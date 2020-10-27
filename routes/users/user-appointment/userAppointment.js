@@ -5,6 +5,7 @@ const {
   createUserAppt,
   updateUserAppt,
   validateUserAppt,
+  validateWithPsychSchedule
 } = require("./userApptHelper");
 router.get("/", auth, (req, res) => {
   // res.send("user appointment router")
@@ -26,28 +27,47 @@ router.post("/", auth, async (req, res) => {
     theDay = day;
   }
   const newStartTime = req.body[theDay][0].start;
+  const validationInfo = {
+    appointedTo:req.body[theDay][0].appointedTo,
+    theDay:theDay,
+    apptStart:req.body[theDay][0].start,
+    apptEnd:req.body[theDay][0].end
+  }
   try {
     const userAppt = await UserAppointment.findOne({
       userAppointed: req.user._id,
     });
     if (userAppt == null) {
-      const result = await createUserAppt(req.user._id, req.body);
-      if (result) {
-        res.status(200).json({msg:"Appointed"});
+      const valid = await validateWithPsychSchedule(validationInfo)
+      console.log("psych validation",valid);
+      if (valid){
+        const result = await createUserAppt(req.user._id, req.body);
+        if (result) {
+          res.status(200).json({msg:"Appointed"});
+        } else {
+          res.status(500).json({msg:"Internal server error"})
+        }
       } else {
-        res.status(500).json({msg:"Internal server error"})
+        res.status(400).json({msg:"The Psychiatrist is not available at that time"})
       }
     } else if (userAppt[theDay].length == 0) {
-      const pushValue = req.body[theDay];
-      const result = await updateUserAppt(req.user.id, theDay, pushValue);
-      if (result) {
-        res.status(200).json({ msg: "Appointed." });
+      const valid = await validateWithPsychSchedule(validationInfo);
+      if (valid){
+        const pushValue = req.body[theDay];
+        const result = await updateUserAppt(req.user.id, theDay, pushValue);
+        if (result) {
+          res.status(200).json({ msg: "Appointed." });
+        } else {
+          res.status(500).json({ msg: "Internal Server Error" });
+        }
+        console.log("zero length");
       } else {
-        res.status(500).json({ msg: "Internal Server Error" });
+        res.status(400).json({msg:"The Psychiatrist is not available at that time"})
       }
-      console.log("zero length");
     } else {
-      console.log("validation step");
+      const valid = await validateWithPsychSchedule(validationInfo);
+      if (valid){
+        console.log("validation step");
       const pushValue = req.body[theDay];
       const info = {
         userAppointedId: req.user._id,
@@ -66,6 +86,10 @@ router.post("/", auth, async (req, res) => {
         console.log("You have appt at this time");
         res.status(400).json({ msg: "You have appointment at this time." });
       }
+      } else {
+        res.status(400).json({msg:"The Psychiatrist is not available at this point in time"})
+      }
+      
     }
   } catch (error) {
     res.status(500).send("Internal Server Error");

@@ -1,4 +1,5 @@
 const UserAppointment = require("../../../models/User/user-appointment/UserAppointment");
+const PsychSchedule = require("../../../models/Psychiatrist/psych-schedule/PsychSchedule");
 const createUserAppt = async (userAppointedId, reqBody) => {
   const {
     monday,
@@ -69,7 +70,6 @@ const validateUserAppt = async (info) => {
     } else {
       newSchedule = parseInt("" + newScheduleHr + newScheduleMin);
     }
-    console.log(oldStartHrMin < newSchedule < oldEndHrMin);
     if (newSchedule >= oldStartHrMin && newSchedule <= oldEndHrMin) {
       // console.log("false stage");
       validationResult = false;
@@ -81,8 +81,80 @@ const validateUserAppt = async (info) => {
   return validationResult
 };
 
+const validateWithPsychSchedule = async(info) => {
+  const {appointedTo,theDay,apptStart,apptEnd} = info
+  const psychSchedule = await PsychSchedule.findOne({
+    psychSchedule:appointedTo
+  });
+  let validationResult = false
+  if (psychSchedule){
+    psychSchedule[theDay].some((schedule) => {
+      console.log("Im at this point");
+      const apptStartHr = new Date(apptStart).getHours();
+      const apptStartMin = new Date(apptStart).getMinutes();
+      const apptEndHr = new Date (apptEnd).getHours();
+      const apptEndMin = new Date (apptEnd).getMinutes();
+      // console.log(apptStartHr);
+      // console.log(apptStartMin)
+      // console.log(apptEndHr);
+      // console.log(apptEndMin)
+
+      const scheduleStartHr = new Date(schedule.start).getHours();
+      const scheduleStartMin = new Date(schedule.start).getMinutes();
+      const scheduleEndHr = new Date(schedule.end).getHours();
+      const scheduleEndMin = new Date(schedule.end).getMinutes();
+      // console.log(scheduleEndHr);
+      // console.log(scheduleEndMin);
+
+      let scheduleStartHrMin;
+      let scheduleEndHrMin;
+      let apptStartHrMin;
+      let apptEndHrMin;
+      if (scheduleStartMin <= 0) {
+        scheduleStartHrMin = parseInt ("" + scheduleStartHr + scheduleStartMin + 0);
+      } else {
+        scheduleStartHrMin = parseInt ("" + scheduleStartHr + scheduleStartMin)
+      }
+      if (scheduleEndMin <= 0) {
+        scheduleEndHrMin = parseInt ("" + scheduleEndHr + scheduleEndMin + 0);
+      } else {
+        scheduleEndHrMin = parseInt ("" + scheduleEndHr + scheduleEndMin)
+      }
+
+      if (apptStartMin <= 0){
+        apptStartHrMin = parseInt ("" + apptStartHr + apptStartMin + 0)
+      } else {
+        apptStartHrMin = parseInt("" + apptStartHr + apptStartMin)
+      }
+      
+      if (apptEndMin <= 0){
+        apptEndHrMin = parseInt ("" + apptEndHr + apptEndMin + 0)
+      } else {
+        apptEndHrMin = parseInt("" + apptEndHr + apptEndMin)
+      }
+      // console.log(scheduleStartHrMin)
+      // console.log(scheduleEndHrMin)
+      // console.log(apptStartHrMin);
+      // console.log(apptEndHrMin);
+      // console.log("apptStart",apptStartHrMin);
+      // console.log("apptEnd",apptEndHrMin);
+      if (apptStartHrMin >= scheduleStartHrMin && apptStartHrMin <= scheduleEndHrMin) {
+        if (apptEndHrMin >= scheduleStartHrMin && apptEndHrMin <= scheduleEndHrMin){
+          return validationResult = true;
+          console.log("validation passed");
+        }
+      } else {
+        return validationResult = false;
+        console.log("Validation failed");
+      }
+    })
+    return validationResult;
+  }
+}
+
 module.exports = {
   createUserAppt,
   updateUserAppt,
   validateUserAppt,
+  validateWithPsychSchedule
 };
