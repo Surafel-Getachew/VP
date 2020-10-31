@@ -87,9 +87,13 @@ const validateWithPsychSchedule = async(info) => {
   const psychSchedule = await PsychSchedule.findOne({
     psychSchedule:appointedTo
   });
-  let validationResult = false
+
+  let validationResult = {
+    info:{},
+    value:false
+  }
   if (psychSchedule){
-    psychSchedule[theDay].some((schedule) => {
+    psychSchedule[theDay].forEach(async(schedule) => {
       console.log("Im at this point");
       const apptStartHr = new Date(apptStart).getHours();
       const apptStartMin = new Date(apptStart).getMinutes();
@@ -99,7 +103,7 @@ const validateWithPsychSchedule = async(info) => {
       // console.log(apptStartMin)
       // console.log(apptEndHr);
       // console.log(apptEndMin)
-
+      console.log(schedule.id);
       const scheduleStartHr = new Date(schedule.start).getHours();
       const scheduleStartMin = new Date(schedule.start).getMinutes();
       const scheduleEndHr = new Date(schedule.end).getHours();
@@ -141,11 +145,34 @@ const validateWithPsychSchedule = async(info) => {
       // console.log("apptEnd",apptEndHrMin);
       if (apptStartHrMin >= scheduleStartHrMin && apptStartHrMin <= scheduleEndHrMin) {
         if (apptEndHrMin >= scheduleStartHrMin && apptEndHrMin <= scheduleEndHrMin){
-          return validationResult = true;
+          // console.log("true stage");
+          const info = {
+            scheduleStartHrMin,
+            scheduleEndHrMin,
+            scheduleStart:schedule.start,
+            scheduleEnd:schedule.end,
+            apptStartHrMin,
+            apptEndHrMin,
+            apptStart:apptStart,
+            apptEnd:apptEnd,
+            scheduleId:schedule.id,
+            theDay:theDay,
+            psychSchedule:appointedTo
+          }
+          // await updatePsychSchedule(info);
+          return validationResult = {
+            info:info,
+            value:true
+          };
+         
           console.log("validation passed");
         }
       } else {
-        return validationResult = false;
+        console.log("false stage");
+        return validationResult = {
+          info:info,
+          value:false
+        };
         console.log("Validation failed");
       }
     })
@@ -169,7 +196,6 @@ const addPsychAppointment = async(info) => {
       ]
     });
     await appointment.save();
-    return true;
   } else {
     
     let appointment = await PsychAppointment.findOneAndUpdate(
@@ -187,7 +213,87 @@ const addPsychAppointment = async(info) => {
       }
     )
     await appointment.save();
-    true;
+  }
+}
+
+const deletePsychSchedule = async(psychSchedule,theDay,scheduleId) => {
+  console.log("deletion stage...");
+  const schedule = await PsychSchedule.update({
+    psychSchedule:psychSchedule
+  },{
+    $pull:{[theDay]:{_id:scheduleId}}
+  });
+}
+const createPsychSchedule = async(psychId,theDay,start,end) => {
+  console.log("adding schedule...");
+  console.log("start",start);
+  console.log("end",end)
+  // const {theDay,startTime,endTime,psychSchedule} = info;
+  // console.log("id of the schedule",psychId)
+  // const schedule = await PsychSchedule.findOne({
+  //   psychSchedule:psychId
+  // });
+  // if (schedule == null) {
+  //   console.log("schedule not found");
+  //   const schedule = await PsychSchedule.create({
+  //     psychSchedule:psychId,
+  //     [theDay]:[
+  //       {
+  //         start:start,
+  //         end:end,
+  //       }
+  //     ]
+  //   });
+  //   await schedule.save();
+  //   console.log("New schedule created");
+
+  // } else {
+    let schedule = await PsychSchedule.findOneAndUpdate(
+      {
+      psychSchedule:psychId
+      },
+    {
+      $push : {
+        [theDay]:[{
+          start:start,
+          end:end
+        }]
+      }
+    });
+    await schedule.save();
+    console.log("schedule updated",schedule);
+  
+  }
+// }
+
+const updatePsychSchedule = async(info) => {
+  console.log("psych schedule update stage");
+  // console.log(info);
+  const {scheduleStartHrMin,scheduleEndHrMin,apptStartHrMin,apptEndHrMin,scheduleId,theDay,psychSchedule,scheduleStart,scheduleEnd,apptStart,apptEnd} = info;
+  console.log(info);
+  if (apptStartHrMin > scheduleStartHrMin && apptStartHrMin < scheduleEndHrMin){
+    if (apptEndHrMin>scheduleStartHrMin && apptEndHrMin < scheduleEndHrMin) {
+      console.log("In between stage");
+      await createPsychSchedule(psychSchedule,theDay,scheduleStart,apptStart);
+      await createPsychSchedule(psychSchedule,theDay,apptEnd,scheduleEnd);
+      await deletePsychSchedule(psychSchedule,theDay,scheduleId);
+      return true;
+    }
+  } else if (scheduleStartHrMin == apptStartHrMin && apptEndHrMin == scheduleEndHrMin) {
+    console.log("schedule and appt equals");  
+    await deletePsychSchedule(psychSchedule,theDay,scheduleId);
+    return true;
+  } else if (apptStartHrMin == scheduleStartHrMin && scheduleStartHrMin < apptEndHrMin <scheduleEndHrMin) {
+    console.log("schedule start equals");
+    await createPsychSchedule(psychSchedule,theDay,apptEnd,scheduleEnd)  
+    await deletePsychSchedule(psychSchedule,theDay,scheduleId);
+    return true;  
+  } 
+  else {
+    console.log("schedule end equals");
+    await createPsychSchedule(psychSchedule,theDay,scheduleStart,apptStart);
+    await deletePsychSchedule(psychSchedule,theDay,scheduleId);
+    return true;
   }
 }
 
@@ -197,5 +303,6 @@ module.exports = {
   updateUserAppt,
   validateUserAppt,
   validateWithPsychSchedule,
-  addPsychAppointment
+  addPsychAppointment,
+  updatePsychSchedule
 };

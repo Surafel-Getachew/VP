@@ -6,7 +6,8 @@ const {
   updateUserAppt,
   validateUserAppt,
   validateWithPsychSchedule,
-  addPsychAppointment
+  addPsychAppointment,
+  updatePsychSchedule
 } = require("./userApptHelper");
 router.get("/", auth, (req, res) => {
   // res.send("user appointment router")
@@ -46,13 +47,15 @@ router.post("/", auth, async (req, res) => {
       userAppointed: req.user._id,
     });
     if (userAppt == null) {
-      const valid = await validateWithPsychSchedule(validationInfo)
-      console.log("psych validation",valid);
-      if (valid){
+      const valid = await validateWithPsychSchedule(validationInfo);
+      console.log(valid.value);
+      console.log("psych validation",valid.value);
+      if (valid.value){
         const result = await createUserAppt(req.user._id, req.body);
         if (result) {
           res.status(200).json({msg:"Appointed"});
           await addPsychAppointment(psychApptInfo);
+          await updatePsychSchedule(valid.info);
         } else {
           res.status(500).json({msg:"Internal server error"})
         }
@@ -61,12 +64,13 @@ router.post("/", auth, async (req, res) => {
       }
     } else if (userAppt[theDay].length == 0) {
       const valid = await validateWithPsychSchedule(validationInfo);
-      if (valid){
+      if (valid.value){
         const pushValue = req.body[theDay];
         const result = await updateUserAppt(req.user.id, theDay, pushValue);
         if (result) {
           res.status(200).json({ msg: "Appointed." });
           await addPsychAppointment(psychApptInfo);
+          await updatePsychSchedule(valid.info);
         } else {
           res.status(500).json({ msg: "Internal Server Error" });
         }
@@ -76,7 +80,7 @@ router.post("/", auth, async (req, res) => {
       }
     } else {
       const valid = await validateWithPsychSchedule(validationInfo);
-      if (valid){
+      if (valid.value){
         console.log("validation step");
       const pushValue = req.body[theDay];
       const info = {
@@ -92,6 +96,7 @@ router.post("/", auth, async (req, res) => {
           console.log("validated and saved");
           res.status(200).json({ msg: "Appointed" });
           await addPsychAppointment(psychApptInfo);
+          await updatePsychSchedule(valid.info)
         }
       } else {
         console.log("You have appt at this time");
@@ -99,8 +104,7 @@ router.post("/", auth, async (req, res) => {
       }
       } else {
         res.status(400).json({msg:"The Psychiatrist is not available at this point in time"})
-      }
-      
+      }   
     }
   } catch (error) {
     res.status(500).send("Internal Server Error");

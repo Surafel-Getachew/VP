@@ -155,7 +155,7 @@ router.get("/my-schedule/:date", auth, async (req, res) => {
     // } else {
     //   res.status(200).json(todaysSchedule);
     // }
-    res.status(200).json(todaysSchedule);
+    res.status(200).json(todaysSchedule); 
   } catch (error) {
     res.status(500).send("Internal server error.");
   }
