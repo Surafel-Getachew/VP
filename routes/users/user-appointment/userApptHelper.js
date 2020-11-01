@@ -93,7 +93,11 @@ const validateWithPsychSchedule = async(info) => {
     value:false
   }
   if (psychSchedule){
-    psychSchedule[theDay].forEach(async(schedule) => {
+    let schedule
+    for (i =0; i<psychSchedule[theDay].length; i++){
+      schedule  = psychSchedule[theDay][i];
+      console.log(schedule.start);
+    // psychSchedule[theDay].some(async(schedule) => {
       console.log("Im at this point");
       const apptStartHr = new Date(apptStart).getHours();
       const apptStartMin = new Date(apptStart).getMinutes();
@@ -103,7 +107,7 @@ const validateWithPsychSchedule = async(info) => {
       // console.log(apptStartMin)
       // console.log(apptEndHr);
       // console.log(apptEndMin)
-      console.log(schedule.id);
+      console.log("id of schedule",schedule.id);
       const scheduleStartHr = new Date(schedule.start).getHours();
       const scheduleStartMin = new Date(schedule.start).getMinutes();
       const scheduleEndHr = new Date(schedule.end).getHours();
@@ -160,24 +164,21 @@ const validateWithPsychSchedule = async(info) => {
             psychSchedule:appointedTo
           }
           // await updatePsychSchedule(info);
-          return validationResult = {
+         validationResult = {
             info:info,
             value:true
           };
-         
-          console.log("validation passed");
+          break;
         }
       } else {
         console.log("false stage");
-        return validationResult = {
-          info:info,
+         validationResult = {
           value:false
         };
-        console.log("Validation failed");
       }
-    })
-    return validationResult;
+    }
   }
+  return validationResult;
 }
 
 const addPsychAppointment = async(info) => {
