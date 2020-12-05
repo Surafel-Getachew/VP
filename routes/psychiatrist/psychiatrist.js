@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const passport = require("passport");
 const multer = require("multer");
 // const sharp = require("sharp");
 const { check, validationResult } = require("express-validator/check");
@@ -9,9 +10,11 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 // Psychiatrist DB
 const Psychiatrist = require("../../models/Psychiatrist");
+const passportStrategy = require("./passport/passportStrategy");
+
 
 // post route
-// signup user
+// signup psychiatrist
 // public
 // completed
 router.post(
@@ -42,7 +45,7 @@ router.post(
         await psychiatrist.save();
 
         const token = await psychiatrist.generateAuthToken();
-        res.status(201).send({ token, role: psychiatrist }); // i removed sending the psychiatrist.
+        res.status(201).send({ token, role: psychiatrist,msg:"Registered Succesfuly" }); // i removed sending the psychiatrist.
       }
     }
   }
@@ -67,7 +70,7 @@ router.post(
       try {
         const psychiatrist = await Psychiatrist.findOne({ email });
         if (!psychiatrist) {
-          return res.status(400).json({ msg: "Invalid Credentials" });
+          return res.status(400).json({ msg: "Psychiatrist not found." });
         }
         const isMatch = await bcrypt.compare(password, psychiatrist.password);
         if (!isMatch) {
@@ -80,6 +83,22 @@ router.post(
         res.status(500).send("Server Error");
       }
     }
+  }
+);
+
+// router.post("/google",passport.authenticate("googleToken"),{session:false},async(req,res) => {
+//   console.log(req.psychiatrist);
+//   const token = await req.psychiatrist.generateAuthToken()
+//   res.send({token});
+// })
+
+router.post(
+  "/google",
+  passport.authenticate("googleToken", { session: false }),
+  async (req, res) => {
+    console.log(req.user,"from psych");
+    const token = await req.user.generateAuthToken();
+    res.send({ token });
   }
 );
 

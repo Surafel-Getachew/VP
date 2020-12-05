@@ -20,6 +20,10 @@ const PsychAppointmentSchema = mongoose.Schema({
                 requirded:true,
                 type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
+            },
+            completed: {
+                required:false,
+                default:false
             }
         }
     ],
@@ -37,6 +41,10 @@ const PsychAppointmentSchema = mongoose.Schema({
                 required:true,
                 type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
+            },
+            completed: {
+                required:false,
+                default:false
             }
         }
     ],
@@ -54,6 +62,10 @@ const PsychAppointmentSchema = mongoose.Schema({
                 required:true,
                 type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
+            },
+            completed: {
+                required:false,
+                default:false
             }
         }
     ],
@@ -71,6 +83,10 @@ const PsychAppointmentSchema = mongoose.Schema({
                 required:true,
                 type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
+            },
+            completed: {
+                required:false,
+                default:false
             }
         }
     ],
@@ -88,6 +104,10 @@ const PsychAppointmentSchema = mongoose.Schema({
                 required:true,
                 type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
+            },
+            completed: {
+                required:false,
+                default:false
             }
         }
     ],
@@ -105,6 +125,10 @@ const PsychAppointmentSchema = mongoose.Schema({
                 required:true,
                 type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
+            },
+            completed: {
+                required:false,
+                default:false
             }
         }
     ],
@@ -122,6 +146,10 @@ const PsychAppointmentSchema = mongoose.Schema({
                 required:true,
                 type:mongoose.SchemaTypes.ObjectId,
                 ref:"user"
+            },
+            completed: {
+                required:false,
+                default:false
             }
         }
     ],

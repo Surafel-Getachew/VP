@@ -11,7 +11,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/User");
 const autho = require("../../middleware/autho");
-require("./passport");
+const userPassport = require("./passport");
 
 // sign up
 router.post(
