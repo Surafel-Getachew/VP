@@ -126,9 +126,10 @@ io.on("connection",socket => {
 const videocall = io.of("/videocall");
 
 videocall.on("connection",socket => {
-    socket.on("join-room",(roomId,peerId,myName) => {
+    socket.on("join-room",(roomId,peerId) => {
         socket.join(roomId);
-        socket.to(roomId).broadcast.emit("user-connected", peerId,myName);
+        // socket.to(roomId).broadcast.emit("user-connected", peerId,myName);
+        socket.to(roomId).broadcast.emit("user-connected", peerId);
         socket.on("myNameee",namee => {
           console.log(namee,"JOINED");
           socket.to(roomId).broadcast.emit("otherrPeerName",namee)
