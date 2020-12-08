@@ -134,10 +134,13 @@ videocall.on("connection",socket => {
           console.log(namee,"JOINED");
           socket.to(roomId).broadcast.emit("otherrPeerName",namee)
         })
-        socket.on("sendTxtMessage",(msg,roomIdd) => {
-          videocall.to(roomId).emit("newMessage",msg);
-        })
-    })
+      })
+      socket.on("sendTxtMessage",(msg,roomIdd,sender) => {
+        videocall.to(roomIdd).emit("newMessage",msg,sender);
+      })
+      socket.on('disconnect', function () {
+     
+  }); 
 })
 
 //               THis is the end of video call code
