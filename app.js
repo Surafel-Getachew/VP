@@ -75,6 +75,20 @@ io.on("connection",socket => {
     clients.push(clientInfo);
   });
 
+  socket.on("callUser",(id,caller) => {
+    for(let i=0; i<clients.length; i++) {
+      if (clients[i].customId === id) {
+        socket.to(clients[i].socketId).emit("reciveeCall",caller);
+        console.log("user to call founddd, calling user",clients[i].socketId);
+        console.log("user to call founddd, calling user",clients[i].clientId);
+        break;
+      } else {
+        console.log("User is not online");
+        // here emit user is offline event
+      }
+    }
+  })
+
   socket.on("sendMessage",(reciver,message) => {
     for(let i=0; i<clients.length; i++){
       if (clients[i].customId === reciver) {
@@ -85,17 +99,7 @@ io.on("connection",socket => {
       }
     }
   })
-  socket.on("callUser",(id,caller) => {
-    for(let i=0; i<clients.length; i++) {
-      if (clients[i].customId === id) {
-        socket.to(clients[i].socketId).emit("reciveCall",caller);
-        console.log("user to call founddd, calling user");
-        break;  
-      } else {
-        console.log("User is not online");
-      }
-    }
-  })
+ 
   socket.on("videoCall",(userToCall,userId) => {
     console.log("video calling user....");
     for (let i=0; i < clients.length; i++) {
