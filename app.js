@@ -7,6 +7,8 @@ const { ExpressPeerServer } = require("peer");
 const connectDB = require("./config/db");
 const psychiatrist = require("./routes/psychiatrist/psychiatrist");
 const users = require("./routes/users/user");
+const Message = require("./models/Message/Message");
+const message = require("./routes/message/message");
 const userAppointment = require("./routes/users/user-appointment/userAppointment");
 const task = require("./routes/Task/task");
 const article = require("./routes/article/article");
@@ -52,6 +54,7 @@ app.use("/vp/user/appointment",userAppointment);
 app.use("/vp/psychiatrist/auth", auth);
 app.use("/vp/task", task);
 app.use("/vp/article", article);
+app.use("/vp/psych/message",message)
 app.use("/vp/room", room);
 app.use("/vp/psych/profile", psychProfile);
 app.use("/vp/psych/schedule",psychSchedule);
@@ -89,7 +92,14 @@ io.on("connection",socket => {
     }
   })
 
-  socket.on("sendMessage",(reciver,message) => {
+  socket.on("sendMessage",(sender,reciver,message) => {
+    Message.create({
+      textMessage:message,
+      sender:sender,
+      reciver:reciver,
+    })
+    console.log("reciver",reciver);
+    console.log("message",message);
     for(let i=0; i<clients.length; i++){
       if (clients[i].customId === reciver) {
         console.log(clients[i].customId,"===",reciver);
@@ -131,6 +141,7 @@ const videocall = io.of("/videocall");
 
 videocall.on("connection",socket => {
     socket.on("join-room",(roomId,peerId) => {
+      console.log("roomId",roomId);
         socket.join(roomId);
         // socket.to(roomId).broadcast.emit("user-connected", peerId,myName);
         socket.to(roomId).broadcast.emit("user-connected", peerId);
@@ -141,6 +152,9 @@ videocall.on("connection",socket => {
       })
       socket.on("sendTxtMessage",(msg,roomIdd,sender) => {
         videocall.to(roomIdd).emit("newMessage",msg,sender);
+      })
+      socket.on("declineCall",(roomId) => {
+        videocall.to(roomId).emit("callDeclined")
       })
       socket.on('disconnect', function () {
      

@@ -47,6 +47,16 @@ PsychiatristSchema.virtual("articles", {
   localField: "_id",
   foreignField: "owner",
 });
+PsychiatristSchema.virtual("messages", {
+  ref: "message",
+  localField: "_id",
+  foreignField: "sender",
+});
+PsychiatristSchema.virtual("messages", {
+  ref: "message",
+  localField: "_id",
+  foreignField: "reciver",
+});
 
 PsychiatristSchema.virtual("psychProfiles", {
   ref: "psychProfile",
@@ -58,6 +68,11 @@ PsychiatristSchema.virtual("psychSocials", {
   ref: "psychSocial",
   localField: "_id",
   foreignField: "owner",
+});
+PsychiatristSchema.virtual("avi", {
+  ref: "avi",
+  localField: "_id",
+  foreignField: "aviOwner",
 });
 
 PsychiatristSchema.methods.toJSON = function () {
