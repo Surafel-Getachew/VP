@@ -93,13 +93,6 @@ io.on("connection",socket => {
   })
 
   socket.on("sendMessage",(sender,reciver,message) => {
-    Message.create({
-      textMessage:message,
-      sender:sender,
-      reciver:reciver,
-    })
-    console.log("reciver",reciver);
-    console.log("message",message);
     for(let i=0; i<clients.length; i++){
       if (clients[i].customId === reciver) {
         console.log(clients[i].customId,"===",reciver);
@@ -108,6 +101,13 @@ io.on("connection",socket => {
         break;
       }
     }
+    Message.create({
+      textMessage:message,
+      sender:sender,
+      reciver:reciver,
+    })
+    console.log("reciver",reciver);
+    console.log("message",message);
   })
  
   socket.on("videoCall",(userToCall,userId) => {

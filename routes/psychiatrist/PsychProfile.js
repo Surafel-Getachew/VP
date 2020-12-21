@@ -120,7 +120,7 @@ router.get("/avatar",auth,async(req,res) => {
       return res.status(200).json(avatar)
     }
   } catch (error) {
-    return res.status(500).json({msg:"Internal Server Erro"})
+    return res.status(500).json({msg:"Internal Server Error"})
   }
 })
 
@@ -136,6 +136,50 @@ router.get("/:id",async (req,res) => {
     res.status(500).send("Internal Server Error")
   }
 })
+
+router.get(`/basic/:id`,async(req,res) => {
+  try {
+    const profile = await PsychProfile.findOne({psychOwner:req.params.id});
+    if (!profile) {
+      return res.status(400).send({msg:"Can't find psychiatrist"});
+    } else {
+      if (profile.avatar !== undefined) {
+        const avatar = Buffer.from(profile.avatar).toString("base64");
+        return res.status(200).json({name:profile.name,avatar:avatar});
+      } else {
+        return res.status(200).json({name:profile.name})
+      }
+    }
+  } catch (error) {
+    return res.status(500).send({msg:"Internal Server Error"})
+  }
+});
+
+router.get("/all/basic",async(req,res) => {
+ try {
+   const profile = await PsychProfile.find();
+   if (!profile) {
+     res.status(400).json({msg:"Can't find profiles"})
+   } else {
+    const profiles = []
+    profile.forEach((prof) => {
+      let avatar
+      if (prof.avatar !== undefined) {
+        avatar = Buffer.from(prof.avatar).toString("base64");
+        profiles.push({name:prof.name,avatar:avatar,psychOwner:prof.psychOwner});
+      } else {
+        profiles.push({name:prof.name,avatar:prof.avatar,psychOwner:prof.psychOwner});
+      }
+    })
+    res.status(200).send(profiles);
+   }
+ } catch (error) {
+   console.log(error);
+   return res.status(500).json({msg:"Interanl Server Error"});
+ }
+
+})
+
 
 // router.get("/",async(req,res) => {
 //   try {
