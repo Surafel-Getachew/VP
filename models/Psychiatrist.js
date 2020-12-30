@@ -47,6 +47,11 @@ PsychiatristSchema.virtual("articles", {
   localField: "_id",
   foreignField: "owner",
 });
+PsychiatristSchema.virtual("groupVideoChats",{
+  ref:"groupVideoChat",
+  localField:"_id",
+  foreignField:"roomOwner"
+})
 PsychiatristSchema.virtual("messages", {
   ref: "message",
   localField: "_id",

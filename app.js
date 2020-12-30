@@ -7,7 +7,6 @@ const { ExpressPeerServer } = require("peer");
 const connectDB = require("./config/db");
 const psychiatrist = require("./routes/psychiatrist/psychiatrist");
 const users = require("./routes/users/user");
-const Message = require("./models/Message/Message");
 const message = require("./routes/message/message");
 const userAppointment = require("./routes/users/user-appointment/userAppointment");
 const task = require("./routes/Task/task");
@@ -17,6 +16,7 @@ const psychProfile = require("./routes/psychiatrist/psychProfile");
 const video_chat = require("./routes/video-chat/video_chat");
 const psychSocial = require("./routes/psychiatrist/psychSocial");
 const psychSchedule = require("./routes/psychiatrist/psychSchedule");
+const groupVideoChat = require("./routes/group-video-chat/groupVideoChat");
 const psychAppointment = require("./routes/psychiatrist/psychAppointment");
 const auth = require("./routes/psychiatrist/auth");
 const app = express();
@@ -54,6 +54,7 @@ app.use("/vp/user/appointment",userAppointment);
 app.use("/vp/psychiatrist/auth", auth);
 app.use("/vp/task", task);
 app.use("/vp/article", article);
+app.use("/vp/groupVideoChat", groupVideoChat);
 app.use("/vp/psych/message",message)
 app.use("/vp/room", room);
 app.use("/vp/psych/profile", psychProfile);
@@ -69,14 +70,15 @@ const weclomeMessage = "Welcome to virtual-psychiatrist chat room.";
 let clients = []
 
 io.on("connection",socket => {
+
   socket.on("storeClientInfo",(data) => {
-    console.log("storing client info...");
     const clientInfo = {};
     clientInfo.customId = data.customId
     clientInfo.socketId = socket.id
-    console.log(clientInfo);
     clients.push(clientInfo);
   });
+
+  
 
   socket.on("callUser",(id,caller) => {
     for(let i=0; i<clients.length; i++) {
@@ -95,19 +97,11 @@ io.on("connection",socket => {
   socket.on("sendMessage",(sender,reciver,message) => {
     for(let i=0; i<clients.length; i++){
       if (clients[i].customId === reciver) {
-        console.log(clients[i].customId,"===",reciver);
-        console.log(clients[i].socketId);
-        socket.to(clients[i].socketId).emit("msg",message)
+        socket.to(clients[i].socketId).emit("msg",message,sender);
         break;
       }
     }
-    Message.create({
-      textMessage:message,
-      sender:sender,
-      reciver:reciver,
-    })
-    console.log("reciver",reciver);
-    console.log("message",message);
+    
   })
  
   socket.on("videoCall",(userToCall,userId) => {
@@ -127,14 +121,12 @@ io.on("connection",socket => {
   
   socket.on("disconnect",(data) => {
     for(let i=0; i<clients.length; i++) {
-      // var client = clients[i];
-      if (clients[i].socketId === socket.id) {
-        console.log("disconnected socket",clients[i].socketId);
-        clients.splice(i,1);
+      if (clients[i].socketId == socket.id) {
         break;
       }
     }
   })
+ 
 });
 
 const videocall = io.of("/videocall");

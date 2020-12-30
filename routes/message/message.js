@@ -17,4 +17,31 @@ router.get("/:sender/:reciver",async(req,res) => {
     }
 });
 
+router.post("/",async(req,res) => {
+    const {
+        sender,
+        reciver,
+        message
+      } = req.body
+    try {
+        const dMessageT = await Message.create({
+            textMessage:message,
+            sender:sender,
+            reciver:reciver
+        });
+        await dMessageT.save();
+        res.status(200)
+    } catch (error) {
+        res.status(400).send("Message Not Saved")
+    }
+})
+
 module.exports = router;
+// 
+// Message.create({
+    //   textMessage:message,
+    //   sender:sender,
+    //   reciver:reciver,
+    // })
+    // console.log("reciver",reciver);
+    // console.log("message",message);

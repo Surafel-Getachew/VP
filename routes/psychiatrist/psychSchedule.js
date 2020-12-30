@@ -161,6 +161,7 @@ router.get("/my-schedule/:date", auth, async (req, res) => {
   }
 });
 
+
 router.delete("/my-schedule/:day/:id", auth, async (req, res) => {
   const day = req.params.day;
   const schedule = await PsychSchedule.update(
@@ -168,12 +169,24 @@ router.delete("/my-schedule/:day/:id", auth, async (req, res) => {
       psychSchedule: req.psychiatrist._id,
     },
     { $pull: { [day]: { _id: req.params.id } } }
-  );
-  if (!schedule) {
-    res.status(400).json({ msg: "Schedule not found." });
-  } else {
-    res.status(200).json({ schedule });
-  }
-});
+    );
+    if (!schedule) {
+      res.status(400).json({ msg: "Schedule not found." });
+    } else {
+      res.status(200).json({ schedule });
+    }
+  });
 
+router.get("/:id/:day",async(req,res) => {
+  const day = req.params.day;
+  const psychId = req.params.id
+  try {
+    const schedule = await PsychSchedule.findOne({psychSchedule:psychId});
+    const todaysSchedule = schedule[day];
+    res.status(200).json(todaysSchedule)    
+  } catch (error) {
+    
+  }
+})
+  
 module.exports = router;
