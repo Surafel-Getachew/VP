@@ -9,6 +9,7 @@ const psychiatrist = require("./routes/psychiatrist/psychiatrist");
 const users = require("./routes/users/user");
 const message = require("./routes/message/message");
 const userAppointment = require("./routes/users/user-appointment/userAppointment");
+const userProfile = require("./routes/users/user-profile/userProfile")
 const task = require("./routes/Task/task");
 const article = require("./routes/article/article");
 const room = require("./routes/chat-room/room");
@@ -51,6 +52,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use("/vp/psychiatrist", psychiatrist);
 app.use("/vp/users", users);
 app.use("/vp/user/appointment",userAppointment);
+app.use("/vp/user/profile",userProfile);
 app.use("/vp/psychiatrist/auth", auth);
 app.use("/vp/task", task);
 app.use("/vp/article", article);

@@ -47,7 +47,6 @@ const PsychProfileSchema = mongoose.Schema({
   specializations: {
     type: [String],
   },
-  
   psychOwner: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,

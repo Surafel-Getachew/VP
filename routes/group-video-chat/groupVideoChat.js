@@ -1,3 +1,4 @@
+const { response } = require("express");
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
@@ -9,8 +10,6 @@ var upload = multer({});
 router.get("/",(req,res) => {
     res.send("groupVideoChat")
 });
-
-module.exports = router;
 
 router.post("/createGroup",upload.single("avatar"),auth,async(req,res) => {
     try {
@@ -27,7 +26,7 @@ router.post("/createGroup",upload.single("avatar"),auth,async(req,res) => {
             start:start,
             end:end,
             description:description,
-            catagery:category,
+            category:category,
             avatar:req.file.buffer,
             roomOwner:req.psychiatrist._id
         });
@@ -41,10 +40,36 @@ router.post("/createGroup",upload.single("avatar"),auth,async(req,res) => {
 
 router.get("/myRooms",auth,async(req,res) => {
     try {
+        let psychRoom = []
         const myRooms = await GroupVideoChat.find({roomOwner:req.psychiatrist._id});
-        res.status(200).send(myRooms);
+        myRooms.forEach((room) => {
+            let avatar = Buffer.from(room.avatar).toString("base64")
+            let group = {
+                ...room._doc,
+                avi:avatar
+            }
+            psychRoom.push(group);
+        })
+        res.status(200).send(psychRoom);
     } catch (error) {
+        console.log(error.message);
         res.status(500).json({msg:"Internal Server Error"});
+    }
+})
+
+router.delete("/:id",auth,async(req,res) => {
+    try {
+        const room = await GroupVideoChat.findOne({_id:req.params.id})
+        // const room = await GroupVideoChat.findOneAndDelete({roomOwner:req.psychiatrist.id,});
+        if (!room) {
+            return res.status(400).json({msg:"Room Not Found"});
+        } else {
+            const deleteRoom = await GroupVideoChat.findOneAndDelete({_id:req.params.id})
+            return res.status(200).json({msg:"Room Deleted"})
+        }
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({msg:"Internal Server Error"})
     }
 })
 
@@ -65,3 +90,5 @@ router.post("/avatar",upload.single("avatar"),auth,async(req,res) => {
         console.log(error.message);
     }
 })
+
+module.exports = router;

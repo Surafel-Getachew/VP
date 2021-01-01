@@ -44,6 +44,12 @@ UserSchema.virtual("tasks", {
   foreignField: "owner"
 });
 
+UserSchema.virtual("userProfiles",{
+  ref:"userProfile",
+  localField:"_id",
+  foreignField:"profileOwner"
+})
+
 UserSchema.methods.toJSON = function() {
   const user = this;
   const userObject = user.toObject();
