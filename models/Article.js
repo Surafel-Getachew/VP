@@ -20,4 +20,6 @@ const ArticleSchema =  mongoose.Schema({
     }
 });
 
+ArticleSchema.index({title:"text",body:"text"});
+
 module.exports = mongoose.model("article",ArticleSchema);

@@ -51,6 +51,16 @@ router.get("/find",auth,async (req,res) => {
   }
 })
 
+router.get("/search",async(req,res) => {
+  try {
+    const article = await Article.find({$text: {$search:"meti"}});
+    res.send(article)
+    res.send("serach")
+  } catch (error) {
+    
+  }
+})
+
 
 // get a single article that are created by the psychiatrist
 router.get("/:id",auth,async (req,res) => {
@@ -103,6 +113,7 @@ router.get("/:id",auth,async (req,res) => {
 // });
 
 
+
 // ////////
 
 router.patch("/:id", auth, async (req, res) => {
@@ -146,5 +157,8 @@ router.delete("/:id", auth, async (req, res) => {
     res.status(500).send("Internal Server Error")
   }
 });
+
+
+
 
 module.exports = router;

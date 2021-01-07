@@ -6,6 +6,27 @@ var upload = multer({
 
 });
 
+router.get("/:id",async(req,res) => {
+    const profile = await UserProfile.findOne({profileOwner:req.params.id});
+    if(!profile){
+        return res.status(400).json({msg:"Profile Not Found"});
+    } else {
+        if (profile.avatar !== null) {
+            let userProfile = {};
+            let avatar = Buffer.from(profile.avatar).toString("base64");
+            userProfile = {
+                name:profile.name,
+                gender:profile.gender,
+                avatar:avatar
+            }
+            return res.status(200).send(userProfile);
+        } else {
+            return res.status(200).send("Internal Server Error");
+        }
+    }
+});
+
+
 router.get("/me",autho,async(req,res) => {
     // res.send("User Profile");
     const profile = await UserProfile.findOne({profileOwner:req.user._id})
@@ -26,6 +47,7 @@ router.get("/me",autho,async(req,res) => {
         }
     }
 })
+
 
 router.post("/",upload.single("avatar"),autho,async(req,res) => {
     let pic = req.file !== undefined ? true : false
