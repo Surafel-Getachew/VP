@@ -9,6 +9,7 @@ const autho = require("../../middleware/autho");
 // create Article
 router.post("/", auth, async (req, res) => {
   const { title, body } = req.body;
+  console.log(title);
   try {
     const article = new Article({
       title,
@@ -51,16 +52,18 @@ router.get("/find",auth,async (req,res) => {
   }
 })
 
-router.get("/search",async(req,res) => {
+router.post("/psychiatrist/search",auth,async(req,res) => {
   try {
-    const article = await Article.find({$text: {$search:"meti"}});
-    res.send(article)
-    res.send("serach")
+    const {
+      search 
+    } = req.body
+    const article = await Article.find({owner:req.psychiatrist._id,$text: {$search:search}});
+    res.send(article);
+    // res.send("serach")
   } catch (error) {
     
   }
 })
-
 
 // get a single article that are created by the psychiatrist
 router.get("/:id",auth,async (req,res) => {
