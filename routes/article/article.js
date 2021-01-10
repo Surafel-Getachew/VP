@@ -8,12 +8,13 @@ const autho = require("../../middleware/autho");
 // private route
 // create Article
 router.post("/", auth, async (req, res) => {
-  const { title, body } = req.body;
+  const { title, body,articleTag} = req.body;
   console.log(title);
   try {
     const article = new Article({
       title,
       body,
+      articleTag,
       owner: req.psychiatrist._id,
      
     });
@@ -61,7 +62,42 @@ router.post("/psychiatrist/search",auth,async(req,res) => {
     res.send(article);
     // res.send("serach")
   } catch (error) {
-    
+    res.status(500).send({msg:"Internal Server Error"})
+    console.log(error.message);
+  }
+})
+
+router.post("/search/all",async(req,res) => {
+  try {
+    const {
+      searchText
+    } = req.body
+    const article = await Article.find({$text:{$search:searchText}});
+    res.send(article)
+  } catch (error) {
+    res.status(500).send({msg:"Internal Server Error"})
+  }
+})
+
+router.get("/category/:category",async(req,res) => {
+  try {
+    const articles = await Article.find({articleTag:req.params.category});
+    res.status(200).send(articles)
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+})
+
+router.get("/findById/:id",async(req,res) => {
+  try {
+    const article = await Article.findOne({_id:req.params.id});
+    if (!article) {
+      return res.status(400).json({msg:"Article not found"})
+    } else {
+      return res.status(200).json({article})
+    }
+  } catch (error) {
+    return res.status(500).json({msg:"Internal Server Error"})
   }
 })
 
