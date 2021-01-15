@@ -13,6 +13,10 @@ const ArticleSchema =  mongoose.Schema({
         type:String,
         required:true
     },
+    articlePhoto:{
+        type:Buffer,
+        // required:true
+    },
     date:{
         type:Date,
         default:Date.now(),

@@ -1,23 +1,31 @@
 const router = require("express").Router();
+const multer = require("multer");
 const Article = require("../../models/Article");
-// const Article = require("../../models/Article");
 const auth = require("../../middleware/auth");
 const autho = require("../../middleware/autho");
+var upload = multer({});
 
 // post request
 // private route
 // create Article
-router.post("/", auth, async (req, res) => {
+router.post("/",upload.single("articlePhoto"),auth, async (req, res) => {
   const { title, body,articleTag} = req.body;
   console.log(title);
   try {
-    const article = new Article({
+    // const article = new Article({
+    //   title,
+    //   body,
+    //   articleTag,
+    //   owner: req.psychiatrist._id,
+     
+    // });
+    const article = await Article.create({
       title,
       body,
       articleTag,
-      owner: req.psychiatrist._id,
-     
-    });
+      articlePhoto:req.file.buffer,
+      owner: req.psychiatrist._id
+    })
     await article.save();
     res.status(201).json(article);
   } catch (error) {
@@ -33,8 +41,17 @@ router.post("/", auth, async (req, res) => {
 
 router.get("/",autho,async (req,res) => {
   try {
-    const article = await Article.find().sort({date:-1});
-    res.json(article)
+    let allArticles = []
+    const articles = await Article.find().sort({date:-1});
+    articles.forEach((article) => {
+      let articleAvi  = Buffer.from(article.articlePhoto).toString("base64")
+      let articleData = {
+        ...article._doc,
+        articlePhoto:articleAvi
+      }
+      allArticles.push(articleData)
+    })
+    res.json(allArticles);
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal server Error");
@@ -46,11 +63,27 @@ router.get("/",autho,async (req,res) => {
 
 router.get("/find",auth,async (req,res) => {
   try {
-    await req.psychiatrist.populate("articles").execPopulate();
-    res.send(req.psychiatrist.articles)
+    let myArticles = [];
+    const articles = await Article.find({owner:req.psychiatrist._id});
+    articles.forEach((article) => {
+      let articleAvi = Buffer.from(article.articlePhoto).toString("base64");
+      let articleList = {
+        ...article._doc,
+        articlePhoto:articleAvi
+      }
+      myArticles.push(articleList);
+    })
+    res.status(200).send(myArticles)
   } catch (error) {
-    res.status(500).send("Internal server error")
+    console.log(error.message);
+    res.status(500).json({msg:"Internal Server Error"})
   }
+  // try {
+  //   await req.psychiatrist.populate("articles").execPopulate();
+  //   res.send(req.psychiatrist.articles)
+  // } catch (error) {
+  //   res.status(500).send("Internal server error")
+  // }
 })
 
 router.post("/psychiatrist/search",auth,async(req,res) => {
@@ -58,8 +91,17 @@ router.post("/psychiatrist/search",auth,async(req,res) => {
     const {
       search 
     } = req.body
-    const article = await Article.find({owner:req.psychiatrist._id,$text: {$search:search}});
-    res.send(article);
+    let articleList = []
+    const articles = await Article.find({owner:req.psychiatrist._id,$text: {$search:search}});
+    articles.forEach((article) => {
+      let articleAvi = Buffer.from(article.articlePhoto).toString("base64");
+      let articleData = {
+        ...article._doc,
+        articlePhoto:articleAvi
+      }
+      articleList.push(articleData);
+    })
+    res.send(articleList);
     // res.send("serach")
   } catch (error) {
     res.status(500).send({msg:"Internal Server Error"})
@@ -72,8 +114,17 @@ router.post("/search/all",async(req,res) => {
     const {
       searchText
     } = req.body
-    const article = await Article.find({$text:{$search:searchText}});
-    res.send(article)
+    let articleList = []
+    const articles = await Article.find({$text:{$search:searchText}});
+    articles.forEach((article) => {
+      let articleAvi = Buffer.from(article.articlePhoto).toString("base64");
+      let articleData = {
+        ...article._doc,
+        articlePhoto:articleAvi
+      }
+      articleList.push(articleData);
+    })
+    res.send(articleList);
   } catch (error) {
     res.status(500).send({msg:"Internal Server Error"})
   }
@@ -81,20 +132,36 @@ router.post("/search/all",async(req,res) => {
 
 router.get("/category/:category",async(req,res) => {
   try {
+    let articleList = []
     const articles = await Article.find({articleTag:req.params.category});
-    res.status(200).send(articles)
+    articles.forEach((article) => {
+      let articleAvi = Buffer.from(article.articlePhoto).toString("base64");
+      let articleData = {
+        ...article._doc,
+        articlePhoto:articleAvi
+      }
+      articleList.push(articleData);
+    })
+    res.send(articleList);
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send({msg:"Internal Server Error"})
   }
+    
 })
 
 router.get("/findById/:id",async(req,res) => {
   try {
-    const article = await Article.findOne({_id:req.params.id});
-    if (!article) {
+    const articles = await Article.findOne({_id:req.params.id});
+    if (!articles) {
       return res.status(400).json({msg:"Article not found"})
     } else {
-      return res.status(200).json({article})
+      const articleAvi = Buffer.from(articles.articlePhoto).toString("base64");
+      const articleData  = {
+        ...article._doc,
+        articlePhoto:articleAvi
+      };
+
+      return res.status(200).json({articleData})
     }
   } catch (error) {
     return res.status(500).json({msg:"Internal Server Error"})

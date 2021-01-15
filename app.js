@@ -7,6 +7,7 @@ const { ExpressPeerServer } = require("peer");
 const connectDB = require("./config/db");
 const psychiatrist = require("./routes/psychiatrist/psychiatrist");
 const users = require("./routes/users/user");
+const admin = require("./routes/Admin/admin");
 const message = require("./routes/message/message");
 const userAppointment = require("./routes/users/user-appointment/userAppointment");
 const userProfile = require("./routes/users/user-profile/userProfile")
@@ -51,6 +52,7 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use("/vp/psychiatrist", psychiatrist);
 app.use("/vp/users", users);
+app.use("/vp/admin", admin);
 app.use("/vp/user/appointment",userAppointment);
 app.use("/vp/user/profile",userProfile);
 app.use("/vp/psychiatrist/auth", auth);
@@ -152,8 +154,25 @@ videocall.on("connection",socket => {
       })
       socket.on('disconnect', function () {
      
+  })
+})
+
+const groupChat = io.of("/group");
+groupChat.on("connection",socket => {
+  socket.on("join-room",(roomId,peerId) => {
+    socket.join(roomId);
+    socket.to(roomId).broadcast.emit("user-connected",peerId);
+    // console.log(peerid,"joined",roomId);
+  })
+  socket.on("sendGroupMessage",(msg,roomId) => {
+    groupChat.to(roomId).emit("newMessage",msg)
+  })
+  socket.on('disconnect', function () {
+    //  console.log("group VC disconnected");
   }); 
 })
+
+
 
 //               THis is the end of video call code
 

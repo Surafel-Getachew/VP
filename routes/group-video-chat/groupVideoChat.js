@@ -3,13 +3,90 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const auth = require("../../middleware/auth");
+const autho = require("../../middleware/autho")
 const GroupVideoChat = require("../../models/GroupVideoChat/GroupVideoChat");
 
 var upload = multer({});
 
-router.get("/",(req,res) => {
-    res.send("groupVideoChat")
+router.get("/all",autho,async(req,res) => {
+    try {
+        let allRooms = []
+        const rooms = await GroupVideoChat.find({});
+        rooms.forEach((room) => {
+            let avi = Buffer.from(room.avatar).toString("base64");
+            let roomData = {
+                ...room._doc,
+                avatar:avi
+            }
+            allRooms.push(roomData)
+        })
+        res.status(200).send(allRooms)
+    } catch (error) {
+        res.status(500).json({msg:"Internal Server Error"});
+    }
 });
+
+router.post("/psychiatrist/search",auth,async(req,res) => {
+    const {
+      searchText
+    } = req.body
+    try {
+        let allRooms = []
+      const rooms = await GroupVideoChat.find({roomOwner:req.psychiatrist._id,$text: {$search:searchText}});
+      rooms.forEach((room) => {
+          let avi = Buffer.from(room.avatar).toString("base64");
+            let roomData = {
+                ...room._doc,
+                avatar:avi
+            }
+            allRooms.push(roomData)
+        })
+      res.status(200).send(allRooms);
+    } catch (error) {
+      res.status(500).send({msg:"Internal Server Error"})
+      console.log(error.message);
+    }
+  })
+
+router.post("/search/all",async(req,res) => {
+    const {searchText} = req.body
+    try {
+        let listOfRooms = []
+        const rooms = await GroupVideoChat.find({$text:{$search:searchText}});
+        rooms.forEach((room) => {
+            let avatar = Buffer.from(room.avatar).toString("base64")
+            let group = {
+                ...room._doc,
+                avatar:avatar
+            }
+            listOfRooms.push(group);
+        })
+        res.status(200).send(listOfRooms);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({msg:"Server Error"});
+    }
+})
+
+router.post("/category",async(req,res) => {
+    const {category} = req.body
+    try {
+        let allRooms = [];
+        const rooms = await GroupVideoChat.find({category:category});
+        rooms.forEach((room) => {
+            let avi = Buffer.from(room.avatar).toString("base64");
+            let roomData = {
+                ...room._doc,
+                avatar:avi
+            }
+            allRooms.push(roomData)
+        })
+        res.status(200).send(allRooms);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({msg:"Internal Server Error"});
+    }
+})
 
 router.post("/createGroup",upload.single("avatar"),auth,async(req,res) => {
     try {
@@ -46,7 +123,7 @@ router.get("/myRooms",auth,async(req,res) => {
             let avatar = Buffer.from(room.avatar).toString("base64")
             let group = {
                 ...room._doc,
-                avi:avatar
+                avatar:avatar
             }
             psychRoom.push(group);
         })
@@ -55,7 +132,8 @@ router.get("/myRooms",auth,async(req,res) => {
         console.log(error.message);
         res.status(500).json({msg:"Internal Server Error"});
     }
-})
+});
+
 
 router.delete("/:id",auth,async(req,res) => {
     try {
@@ -71,7 +149,7 @@ router.delete("/:id",auth,async(req,res) => {
         console.log(error.message);
         return res.status(500).json({msg:"Internal Server Error"})
     }
-})
+});
 
 router.post("/avatar",upload.single("avatar"),auth,async(req,res) => {
     const room = {

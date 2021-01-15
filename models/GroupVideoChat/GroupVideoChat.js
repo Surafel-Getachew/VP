@@ -18,7 +18,8 @@ const GroupVideoChatSchema = mongoose.Schema({
         required:true
     },
     category: {
-        type: [String],
+        type: String,
+        required:true
       },
     avatar: {
         type:Buffer
@@ -29,5 +30,7 @@ const GroupVideoChatSchema = mongoose.Schema({
         ref:"psychiatrist"
     },
 });
+
+GroupVideoChatSchema.index({name:"text"})
 
 module.exports = mongoose.model("groupVideoChat",GroupVideoChatSchema)
