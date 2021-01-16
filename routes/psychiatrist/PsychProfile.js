@@ -162,15 +162,23 @@ router.get("/all/basic",async(req,res) => {
      res.status(400).json({msg:"Can't find profiles"})
    } else {
     const profiles = []
-    profile.forEach((prof) => {
+    for (let i=0; i<profile.length; i++) {
+
+    // profile.forEach(async(prof) => {
+      let email
       let avatar
-      if (prof.avatar !== undefined) {
-        avatar = Buffer.from(prof.avatar).toString("base64");
-        profiles.push({name:prof.name,avatar:avatar,psychOwner:prof.psychOwner});
-      } else {
-        profiles.push({name:prof.name,avatar:prof.avatar,psychOwner:prof.psychOwner});
+      let emailAddress = await Psychiatrist.findById(profile[i].psychOwner);
+      if (emailAddress) {
+        email = emailAddress.email
       }
-    })
+      if (profile[i].avatar !== undefined) {
+        avatar = Buffer.from(profile[i].avatar).toString("base64");
+        profiles.push({name:profile[i].name,avatar:avatar,email:email,psychOwner:profile[i].psychOwner});
+      } else {
+        profiles.push({name:profile[i].name,avatar:profile[i].avatar,email:email,psychOwner:profile[i].psychOwner});
+      }
+    }
+    // })
     res.status(200).send(profiles);
    }
  } catch (error) {

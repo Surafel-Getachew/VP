@@ -3,7 +3,8 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const auth = require("../../middleware/auth");
-const autho = require("../../middleware/autho")
+const autho = require("../../middleware/autho");
+const adminAuth = require("../../middleware/adminAuth")
 const GroupVideoChat = require("../../models/GroupVideoChat/GroupVideoChat");
 
 var upload = multer({});
@@ -136,6 +137,22 @@ router.get("/myRooms",auth,async(req,res) => {
 
 
 router.delete("/:id",auth,async(req,res) => {
+    try {
+        const room = await GroupVideoChat.findOne({_id:req.params.id})
+        // const room = await GroupVideoChat.findOneAndDelete({roomOwner:req.psychiatrist.id,});
+        if (!room) {
+            return res.status(400).json({msg:"Room Not Found"});
+        } else {
+            const deleteRoom = await GroupVideoChat.findOneAndDelete({_id:req.params.id})
+            return res.status(200).json({msg:"Room Deleted"})
+        }
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({msg:"Internal Server Error"})
+    }
+});
+
+router.delete("/admin/:id",adminAuth,async(req,res) => {
     try {
         const room = await GroupVideoChat.findOne({_id:req.params.id})
         // const room = await GroupVideoChat.findOneAndDelete({roomOwner:req.psychiatrist.id,});

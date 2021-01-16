@@ -39,7 +39,7 @@ router.post("/",upload.single("articlePhoto"),auth, async (req, res) => {
 // private route
 // read articles
 
-router.get("/",autho,async (req,res) => {
+router.get("/",async (req,res) => {
   try {
     let allArticles = []
     const articles = await Article.find().sort({date:-1});
@@ -149,25 +149,6 @@ router.get("/category/:category",async(req,res) => {
     
 })
 
-router.get("/findById/:id",async(req,res) => {
-  try {
-    const articles = await Article.findOne({_id:req.params.id});
-    if (!articles) {
-      return res.status(400).json({msg:"Article not found"})
-    } else {
-      const articleAvi = Buffer.from(articles.articlePhoto).toString("base64");
-      const articleData  = {
-        ...article._doc,
-        articlePhoto:articleAvi
-      };
-
-      return res.status(200).json({articleData})
-    }
-  } catch (error) {
-    return res.status(500).json({msg:"Internal Server Error"})
-  }
-})
-
 // get a single article that are created by the psychiatrist
 router.get("/:id",auth,async (req,res) => {
   const _id = req.params.id
@@ -181,7 +162,46 @@ router.get("/:id",auth,async (req,res) => {
     console.error(error.message);
     res.status(500).send("Internal Server error");
   }
+});
+
+router.get("/findById/:id",async(req,res) => {
+  try {
+    const articles = await Article.findOne({_id:req.params.id});
+    if (!articles) {
+      return res.status(400).json({msg:"Article not found"})
+    } else {
+      const articleAvi = Buffer.from(articles.articlePhoto).toString("base64");
+      const articleData  = {
+        ...articles._doc,
+        articlePhoto:articleAvi
+      };
+
+      return res.status(200).json({articleData})
+    }
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({msg:"Internal Server Error"})
+  }
 })
+
+
+// router.get("/all",async(req,res) => {
+//   try {
+//     let allArticles = [];
+//     const articles = await Article.find({});
+//     articles.forEach((article) => {
+//       let articleAvi = Buffer.from(article.articlePhoto).toString("base64");
+//       let articleData = {
+//         ...article._doc,
+//         articlePhoto:articleAvi
+//       }
+//       allArticles.push(articleData);
+//     })
+//     res.status(200).send(allArticles);
+//   } catch (error) {
+//     res.status(500).json({msg:"Interanl Server Error"})
+//   }
+// })
 
 
 

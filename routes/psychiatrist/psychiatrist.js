@@ -103,6 +103,20 @@ router.post(
 );
 
 
+router.get("/:id",async (req,res) => {
+  try {
+    const psych = await Psychiatrist.findById(req.params.id).select("-password");
+    if (!psych) {
+      return res.status(400).send(psych)
+    } else {
+      res.status(200).send(psych)
+    }
+  } catch (error) {
+    res.status(500).json({msg:"Internal Server Error"});
+  }
+})
+
+
 router.get("/all",async(req,res) => {
   try {
     const psych = await Psychiatrist.find().select("-password");
@@ -135,6 +149,7 @@ router.get("/", auth, async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 const upload = multer({
   limits: {
