@@ -186,4 +186,33 @@ router.post("/avatar",upload.single("avatar"),auth,async(req,res) => {
     }
 })
 
+router.patch("/:id",upload.single("avatar"),auth,async(req,res) => {
+    let roomValue;
+    const {name,description,category,start,end} = req.body
+    if (req.file.buffer === undefined){
+        roomValue =  {name,description,category,start,end}
+        console.log("no avatar");
+    } else {
+        roomValue = {name,description,category,start,end,avatar:req.file.buffer}
+        console.log("There is avatar");
+    }
+    try {
+        let roomData = await GroupVideoChat.findOneAndUpdate({_id:req.params.id},{
+            $set:roomValue
+        },{new:true,upsert:true});
+        await roomData.save();
+        res.status(200).send({msg:"success"})
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({msg:"Internal Server Error"})
+    }
+})
+router.get("/admin/total",adminAuth,async(req,res) => {
+    try {
+        const totalRooms = await GroupVideoChat.countDocuments()
+        res.status(200).send(totalRooms.toString());
+    } catch (error) {
+        res.status(500).json({msg:"Internal Server Error"})
+    }
+})
 module.exports = router;

@@ -17,7 +17,7 @@ module.exports = async function (req,res,next) {
             req.token = token
             next();
         } catch (error) {
-            res.status(401).send({msg:"Unauthorized Access"});
+            res.status(401).send({msg:"Unauthorized Admin Access"});
         }
     }
 }

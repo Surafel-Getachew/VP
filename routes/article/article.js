@@ -3,7 +3,11 @@ const multer = require("multer");
 const Article = require("../../models/Article");
 const auth = require("../../middleware/auth");
 const autho = require("../../middleware/autho");
+const adminAuth = require("../../middleware/adminAuth");
 var upload = multer({});
+
+
+
 
 // post request
 // private route
@@ -130,6 +134,8 @@ router.post("/search/all",async(req,res) => {
   }
 })
 
+
+
 router.get("/category/:category",async(req,res) => {
   try {
     let articleList = []
@@ -148,6 +154,7 @@ router.get("/category/:category",async(req,res) => {
   }
     
 })
+
 
 // get a single article that are created by the psychiatrist
 router.get("/:id",auth,async (req,res) => {
@@ -183,6 +190,113 @@ router.get("/findById/:id",async(req,res) => {
     return res.status(500).json({msg:"Internal Server Error"})
   }
 })
+
+
+
+router.patch("/:id", auth, async (req, res) => {
+  const updates = Object.keys(req.body);
+  try {
+    const article = await Article.findById(req.params.id);
+
+    if (!article) {
+      res.status(400).send("cant find contact");
+    } else {
+      updates.forEach(update => {
+        article[update] = req.body[update];
+      });
+    }
+    await article.save();
+    res.json(article);
+  } catch (error) {
+    res.status(500).json({ msg: "Internal server Error" });
+  }
+});
+
+
+
+//delete route
+// private route
+// to delete an article.
+
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    const article = await Article.findOneAndDelete({
+      _id: req.params.id,
+      owner: req.psychiatrist._id
+    });
+    if (!article) {
+      res.status(400).send("Article not found");
+    }
+    res.status(200).send(article);
+    await article.save();
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send("Internal Server Error")
+  }
+});
+
+
+
+
+router.delete("/admin/:id", adminAuth, async (req, res) => {
+  try {
+    const article = await Article.findOneAndDelete({
+      _id: req.params.id,
+    });
+    if (!article) {
+      res.status(400).send("Article not found");
+    }
+    res.status(200).send();
+    // await article.save();
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send("Internal Server Error")
+  }
+});
+
+
+
+
+router.get("/psychiatrist/numberOfArticle",auth,async(req,res) => {
+  try {
+    const numberOfArticle = await Article.countDocuments({owner:req.psychiatrist._id});
+    res.status(200).send(numberOfArticle.toString());
+  } catch (error) {
+    res.status(500).send({msg:"Internal Server Error"});
+    console.log(error.message);
+  }
+})
+
+router.get("/admin/total",adminAuth,async(req,res) => {
+  try {
+    const totalArticle = await Article.countDocuments();
+    res.status(200).send(totalArticle.toString());
+  } catch (error) {
+    res.status(500).send({msg:"Internal Server Error"})
+  }
+})
+
+
+
+
+
+module.exports = router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // router.get("/all",async(req,res) => {
@@ -241,50 +355,3 @@ router.get("/findById/:id",async(req,res) => {
 
 
 // ////////
-
-router.patch("/:id", auth, async (req, res) => {
-  const updates = Object.keys(req.body);
-  try {
-    const article = await Article.findById(req.params.id);
-
-    if (!article) {
-      res.status(400).send("cant find contact");
-    } else {
-      updates.forEach(update => {
-        article[update] = req.body[update];
-      });
-    }
-    await article.save();
-    res.json(article);
-  } catch (error) {
-    res.status(500).json({ msg: "Internal server Error" });
-  }
-});
-
-
-
-//delete route
-// private route
-// to delete an article.
-
-router.delete("/:id", auth, async (req, res) => {
-  try {
-    const article = await Article.findOneAndDelete({
-      _id: req.params.id,
-      owner: req.psychiatrist._id
-    });
-    if (!article) {
-      res.status(400).send("Article not found");
-    }
-    res.status(200).send(article);
-    await article.save();
-  } catch (error) {
-    console.error(error.message)
-    res.status(500).send("Internal Server Error")
-  }
-});
-
-
-
-
-module.exports = router;

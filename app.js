@@ -103,6 +103,9 @@ io.on("connection",socket => {
       if (clients[i].customId === reciver) {
         socket.to(clients[i].socketId).emit("msg",message,sender);
         break;
+      } else {
+        console.log("User is not online");
+        // here emit user is offline event
       }
     }
     
@@ -122,14 +125,25 @@ io.on("connection",socket => {
     // socket.join(userToCall);
     // socket.to(userToCall).broadcast.emit("user-connected", userId);
   })
-  
+
   socket.on("disconnect",(data) => {
     for(let i=0; i<clients.length; i++) {
-      if (clients[i].socketId == socket.id) {
+      // var client = clients[i];
+      if (clients[i].socketId === socket.id) {
+        console.log("disconnected socket",clients[i].socketId);
+        clients.splice(i,1);
         break;
       }
     }
   })
+  
+  // socket.on("disconnect",(data) => {
+  //   for(let i=0; i<clients.length; i++) {
+  //     if (clients[i].socketId == socket.id) {
+  //       break;
+  //     }
+  //   }
+  // })
  
 });
 

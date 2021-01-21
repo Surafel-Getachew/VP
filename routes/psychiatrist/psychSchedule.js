@@ -1,8 +1,50 @@
 const router = require("express").Router();
 const moment = require("moment");
 const auth = require("../../middleware/auth");
+const adminAuth = require("../../middleware/adminAuth");
 const PsychSchedule = require("../../models//Psychiatrist/psych-schedule/PsychSchedule");
 // const { modelName } = require("../../models/PsychSchedule");
+
+router.get("/admin/allSchedule",adminAuth,async(req,res) => {
+  let totalMonday = 0;
+  let totalTuesday = 0;
+  let totalWednesday = 0;
+  let totalThursday = 0;
+  let totalFriday = 0;
+  let totalSaturday = 0;
+  let totalSunday= 0;
+  let days = {monday:"",tuesday:"",wednesday:"",thursday:"",friday:"",saturday:"",sunday:""}
+  try {
+    const schedule = await PsychSchedule.find();
+    for(let i=0; i<schedule.length; i++){
+      mondayLength = schedule[i].monday.length;
+      totalMonday += mondayLength
+      tuesdayLength = schedule[i].tuesday.length;
+      totalTuesday += tuesdayLength
+      wednesdayLength = schedule[i].wednesday.length;
+      totalWednesday += wednesdayLength
+      thursdayLength = schedule[i].thursday.length;
+      totalThursday += thursdayLength
+      fridayLength = schedule[i].friday.length;
+      totalFriday += fridayLength
+      saturdayLength = schedule[i].saturday.length;
+      totalSaturday += saturdayLength
+      sundayLength = schedule[i].sunday.length;
+      totalSunday += sundayLength
+    }
+    days.monday = totalMonday.toString();
+    days.tuesday = totalTuesday.toString()
+    days.wednesday = totalWednesday.toString()
+    days.thursday = totalThursday.toString()
+    days.friday = totalFriday.toString()
+    days.saturday = totalSaturday.toString()
+    days.sunday = totalSunday.toString()
+    res.status(200).send(days)
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({msg:"Internal Server Error"});
+  } 
+})
 
 router.post("/", auth, async (req, res) => {
   console.log("req.body",req.body);
@@ -187,6 +229,6 @@ router.get("/:id/:day",async(req,res) => {
   } catch (error) {
     
   }
-})
-  
+});
+
 module.exports = router;

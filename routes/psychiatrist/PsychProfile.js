@@ -66,7 +66,7 @@ router.post("/",auth,async (req, res) => {
       { new: true, upsert: true }
     );
     await profile.save();
-    console.log(profile);
+    // console.log(profile);
     res.status(201).json(profile);
   } catch (error) {
     res.status(500).send(error);

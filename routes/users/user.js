@@ -11,6 +11,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/User");
 const autho = require("../../middleware/autho");
+const adminAuth = require("../../middleware/adminAuth");
+const UserProfile = require("../../models/User/UserProfile/UserProfile");
 const userPassport = require("./passport");
 
 // sign up
@@ -229,5 +231,28 @@ router.post("/resetPassword", async (req, res) => {
     res.status(500).send("Error occured while reseting your password");
   }
 });
+
+router.get("/admin/total",adminAuth,async(req,res) => {
+  try {
+    const numberOfUser = await User.countDocuments();
+    res.status(200).send(numberOfUser.toString());
+  } catch (error) {
+    res.status(500).send({msg:"Internal Server Error"});
+  }
+});
+
+router.delete("/:id",adminAuth,async(req,res) => {
+  try {
+    const user = await User.findOneAndDelete({_id:req.params.id});
+    const userProfile = await UserProfile.findOneAndDelete({profileOwner:req.params.id})
+    if(!user){
+      res.status(200).send("user not found");
+    }
+    res.status(200).send()
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({msg:"Internal Server Error"});
+  }
+})
 
 module.exports = router;

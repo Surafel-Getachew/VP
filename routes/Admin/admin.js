@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-// const passport = require("passport");
 const bcrypt = require("bcryptjs");
 const adminAuth = require("../../middleware/adminAuth");
 const Admin = require("../../models/Admin/Admin");
@@ -54,7 +53,28 @@ router.get("/",adminAuth,async(req,res) => {
     } catch (error) {
         res.status(500).send(error.message)
     }
-})
+});
+
+router.post("/changePassword",adminAuth,async(req,res) => {
+    try {
+      const {oldPassword,newPassword} = req.body;
+      const admin = await Admin.findById(req.admin._id);
+      if (!admin) {
+        return res.status(400).json({msg:"Admin not found"});
+      }
+      const check = await bcrypt.compare(oldPassword,admin.password)
+      if (check){
+        const salt = await bcrypt.genSalt(10);
+        admin.password = await bcrypt.hash(newPassword,salt);
+        admin.save();
+        return res.status(200).send({msg:"Passwod Updated"});
+      } else {
+        return res.status(400).send({msg:"Password Doesn't Match"})
+      }
+    } catch (error) {
+      res.status(500).msg({})
+    }
+  })
 
 
 module.exports = router;

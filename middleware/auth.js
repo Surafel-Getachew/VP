@@ -19,7 +19,7 @@ module.exports = async function(req,res,next){
             req.role = psychiatrist.role
             next();
         } catch (error) {
-            res.status(401).send({msg:"Unauthorized Access"});
+            res.status(401).send({msg:"Unauthorized Psychiatrist Access"});
         }
     }
 }

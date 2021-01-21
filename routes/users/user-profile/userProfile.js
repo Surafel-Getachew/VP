@@ -2,6 +2,8 @@ const router = require("express").Router();
 const multer = require("multer");
 const UserProfile = require("../../../models/User/UserProfile/UserProfile");
 const autho = require("../../../middleware/autho");
+const adminAuth = require("../../../middleware/adminAuth");
+const User = require("../../../models/User");
 var upload = multer({
 
 });
@@ -82,5 +84,48 @@ router.post("/",upload.single("avatar"),autho,async(req,res) => {
         console.log(error.message);
     }
 });
+
+router.get("/all/basic",adminAuth,async(req,res) => {
+    try {
+      const profile = await UserProfile.find();
+      if (!profile) {
+        res.status(400).json({msg:"Can't find profiles"})
+      } else {
+       const profiles = []
+       for (let i=0; i<profile.length; i++) {
+   
+       // profile.forEach(async(prof) => {
+         let email
+         let avatar
+         let emailAddress = await User.findById(profile[i].profileOwner);
+         if (emailAddress) {
+           email = emailAddress.email
+         }
+         if (profile[i].avatar !== undefined) {
+           avatar = Buffer.from(profile[i].avatar).toString("base64");
+           profiles.push({name:profile[i].name,avatar:avatar,email:email,profileOwner:profile[i].profileOwner});
+         } else {
+           profiles.push({name:profile[i].name,avatar:profile[i].avatar,email:email,profileOwner:profile[i].profileOwner});
+         }
+       }
+       // })
+       res.status(200).send(profiles);
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({msg:"Interanl Server Error"});
+    }
+   
+   })
+   
+
+
+
+
+
+
+
+
+
 
 module.exports = router;

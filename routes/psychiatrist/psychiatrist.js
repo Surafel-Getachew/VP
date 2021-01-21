@@ -6,11 +6,14 @@ const multer = require("multer");
 const { check, validationResult } = require("express-validator/check");
 const bcrypt = require("bcryptjs");
 const auth = require("../../middleware/auth");
+const adminAuth = require("../../middleware/adminAuth");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 // Psychiatrist DB
 const Psychiatrist = require("../../models/Psychiatrist");
+const PsychProfile = require("../../models/Psychiatrist/psych-profile/PsychProfile");
 const passportStrategy = require("./passport/passportStrategy");
+const { restart } = require("nodemon");
 
 
 // post route
@@ -206,6 +209,51 @@ router.get("/profilePic/:id", async (req, res) => {
     console.log(error.message);
   }
 });
+
+router.delete("/:id",adminAuth,async(req,res) => {
+  try {
+    const psych = await Psychiatrist.findOneAndDelete({_id:req.params.id});
+    const psychProfile = await PsychProfile.findOneAndDelete({psychOwner:req.params.id})
+    if (!psych){
+      res.status(400).send("psych not found")
+    }
+    // await psych.save();
+    res.status(200).send();
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+})
+
+router.post("/changePassword",auth,async(req,res) => {
+  try {
+    const {oldPassword,newPassword} = req.body;
+    const psychiatrist = await Psychiatrist.findById(req.psychiatrist._id);
+    if (!psychiatrist) {
+      return res.status(400).json({msg:"Psychiatrist not found"});
+    }
+    const check = await bcrypt.compare(oldPassword,psychiatrist.password)
+    if (check){
+      const salt = await bcrypt.genSalt(10);
+      psychiatrist.password = await bcrypt.hash(newPassword,salt);
+      psychiatrist.save();
+      return res.status(200).send({msg:"Passwod Updated"});
+    } else {
+      return res.status(400).send({msg:"Password Doesn't Match"})
+    }
+  } catch (error) {
+    res.status(500).msg({})
+  }
+})
+
+router.get("/admin/total",adminAuth,async(req,res) => {
+  try {
+    const totalPsychiatrist = await Psychiatrist.countDocuments();
+    res.status(200).send(totalPsychiatrist.toString());
+  } catch (error) {
+    res.status(500).json({msg:"Internal Server Error"});
+  }
+})
 
 router.delete("/profilePic", auth, async (req, res) => {
   req.psychiatrist.avatar = undefined;
