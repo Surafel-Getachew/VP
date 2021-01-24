@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const auth = require("../../../middleware/autho");
 const UserAppointment = require("../../../models/User/user-appointment/UserAppointment");
+const PsychProfile = require("../../../models/Psychiatrist/psych-profile/PsychProfile");
 const {
   createUserAppt,
   updateUserAppt,
@@ -110,5 +111,41 @@ router.post("/", auth, async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+router.get("/myAppointment/:date",auth,async(req,res) => {
+  try {
+    const userAppt = await UserAppointment.findOne({userAppointed:req.user.id});
+    const todaysAppt = userAppt[req.params.date];
+    let profile = [];
+    // console.log(todaysAppt);
+  for (let i=0; i<todaysAppt.length; i++) {
+    const psychProfile = await PsychProfile.findOne({psychOwner:todaysAppt[i].appointedTo});
+    // console.log(psychProfile);
+    if (psychProfile.avatar == undefined){
+      const apptData = {
+        psychProfile,
+        starTime:todaysAppt[i].start,
+        endTime:todaysAppt[i].start
+      }
+      // profile.push(psychProfile);
+      profile.push(apptData);
+    } else {
+      const avatar = Buffer.from(psychProfile.avatar).toString("base64");
+      let cProfile = {
+        name:psychProfile.name,
+        avatar:avatar,
+        startTime:todaysAppt[i].start,
+        endTime:todaysAppt[i].end
+      }
+      profile.push(cProfile);
+    }
+  }
+  res.status(200).send(profile);
+  } catch (error) {
+    res.status(500).send({msg:"Internal Server Error"});
+    console.log(error.message);
+  }
+  
+})
 
 module.exports = router;
