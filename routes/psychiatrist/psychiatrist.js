@@ -236,7 +236,7 @@ router.post("/changePassword",auth,async(req,res) => {
     if (check){
       const salt = await bcrypt.genSalt(10);
       psychiatrist.password = await bcrypt.hash(newPassword,salt);
-      psychiatrist.save();
+      await psychiatrist.save();
       return res.status(200).send({msg:"Passwod Updated"});
     } else {
       return res.status(400).send({msg:"Password Doesn't Match"})

@@ -66,13 +66,13 @@ router.post("/changePassword",adminAuth,async(req,res) => {
       if (check){
         const salt = await bcrypt.genSalt(10);
         admin.password = await bcrypt.hash(newPassword,salt);
-        admin.save();
+        await admin.save();
         return res.status(200).send({msg:"Passwod Updated"});
       } else {
         return res.status(400).send({msg:"Password Doesn't Match"})
       }
     } catch (error) {
-      res.status(500).msg({})
+      res.status(500).send({msg:"Internal Server Error"})
     }
   })
 

@@ -255,4 +255,24 @@ router.delete("/:id",adminAuth,async(req,res) => {
   }
 })
 
+router.post("/changePassword",autho,async(req,res) => {
+  try {
+    const {oldPassword,newPassword} = req.body;
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(400).json({msg:"User not found"});
+    }
+    const check = await bcrypt.compare(oldPassword,user.password)
+    if (check){
+      user.password = newPassword
+      await user.save()
+      return res.status(200).send({msg:"Passwod Updated"});
+    } else {
+      return res.status(400).send({msg:"Password Doesn't Match"})
+    }
+  } catch (error) {
+    // res.status(500).send({msg:"Internal Server Error"});
+  }
+})
+
 module.exports = router;

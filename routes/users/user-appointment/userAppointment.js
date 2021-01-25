@@ -125,7 +125,8 @@ router.get("/myAppointment/:date",auth,async(req,res) => {
       const apptData = {
         psychProfile,
         starTime:todaysAppt[i].start,
-        endTime:todaysAppt[i].start
+        endTime:todaysAppt[i].start,
+        _id:todaysAppt[i]._id
       }
       // profile.push(psychProfile);
       profile.push(apptData);
@@ -135,7 +136,8 @@ router.get("/myAppointment/:date",auth,async(req,res) => {
         name:psychProfile.name,
         avatar:avatar,
         startTime:todaysAppt[i].start,
-        endTime:todaysAppt[i].end
+        endTime:todaysAppt[i].end,
+        _id:todaysAppt[i]._id
       }
       profile.push(cProfile);
     }
@@ -145,7 +147,28 @@ router.get("/myAppointment/:date",auth,async(req,res) => {
     res.status(500).send({msg:"Internal Server Error"});
     console.log(error.message);
   }
-  
+})
+
+router.delete("/:day/:id",auth,async(req,res) => {
+  console.log("delete route called");
+  try {
+    const day = req.params.day;
+    console.log("id of schedule",req.params._id);
+    console.log("id of schedule",day);
+    const schedule = await UserAppointment.update({
+      userAppointed:req.user._id
+    },
+    {$pull:{[day]:{_id:req.params.id}}}
+    );
+    if(!schedule){
+      res.status(400).json({msg:"Schdule not found"})
+    } else {
+      res.status(200).json({schedule});
+    }
+  } catch (error) {
+    res.status(500).send({msg:"Internal Server Error"});
+    console.log(error.message);
+  }
 })
 
 module.exports = router;

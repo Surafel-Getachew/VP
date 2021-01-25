@@ -9,6 +9,7 @@ var upload = multer({
 });
 
 router.get("/:id",async(req,res) => {
+    console.log("user profile",req.params.id);
     const profile = await UserProfile.findOne({profileOwner:req.params.id});
     if(!profile){
         return res.status(400).json({msg:"Profile Not Found"});

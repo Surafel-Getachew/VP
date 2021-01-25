@@ -82,11 +82,13 @@ router.post("/", auth, async (req, res) => {
         const oldStartHr = new Date(schedule.start).getHours();
         const oldStartMin = new Date(schedule.start).getMinutes();
         const newScheduleHr = new Date(newStartTime).getHours();
-        const newScheduleMin = new Date(newStartTime).getMinutes();
+        const newScheduleMinn = new Date(newStartTime).getMinutes();
+        const newScheduleMin = parseInt ("" + "0" + newScheduleMinn);
         // if saved old min is less than 9 add 0 to the end of it.
         let oldEndHrMin;
         let oldStartHrMin;
         let newSchedule;
+        // console.log(newScheduleMin);
         if (oldEndMin <= 0) {
           oldEndHrMin = parseInt("" + oldEndHr + oldEndMin + 0);
         } else {
@@ -99,6 +101,7 @@ router.post("/", auth, async (req, res) => {
         }
         if (newScheduleMin <= 0) {
           newSchedule = parseInt("" + newScheduleHr + newScheduleMin + 0);
+          console.log("last min check");
           console.log("newSchedule", newSchedule);
         } else {
           newSchedule = parseInt("" + newScheduleHr + newScheduleMin);
@@ -189,7 +192,6 @@ router.get("/my-schedule/:date", auth, async (req, res) => {
       psychSchedule: req.psychiatrist._id,
     });
     const todaysSchedule = schedule[req.params.date];
-
     // console.log(todaysSchedule);
     // if (todaysSchedule.length == 0) {
     //   res.status(400).json({ msg: "No appointment today." });
@@ -197,7 +199,7 @@ router.get("/my-schedule/:date", auth, async (req, res) => {
     // } else {
     //   res.status(200).json(todaysSchedule);
     // }
-    res.status(200).json(todaysSchedule); 
+    res.status(200).json(todaysSchedule);
   } catch (error) {
     res.status(500).send("Internal server error.");
   }

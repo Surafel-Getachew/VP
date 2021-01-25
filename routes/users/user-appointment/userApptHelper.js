@@ -121,6 +121,7 @@ const validateWithPsychSchedule = async(info) => {
       let apptEndHrMin;
       if (scheduleStartMin <= 0) {
         scheduleStartHrMin = parseInt ("" + scheduleStartHr + scheduleStartMin + 0);
+        // console.log("lastmincheck",scheduleStartHrMin);
       } else {
         scheduleStartHrMin = parseInt ("" + scheduleStartHr + scheduleStartMin)
       }
