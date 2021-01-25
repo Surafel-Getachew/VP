@@ -116,7 +116,30 @@ router.get("/all/basic",adminAuth,async(req,res) => {
       console.log(error);
       return res.status(500).json({msg:"Interanl Server Error"});
     }
-   
+   })
+
+   router.post("/search/all",adminAuth,async(req,res) => {
+       try {
+           const {searchText} = req.body
+           let usersList = [];
+           const users = await UserProfile.find({$text:{$search:searchText}});
+           users.forEach((user) => {
+               if (user.avatar == undefined){
+                   usersList.push(user)
+                } else {
+                   let avatar = Buffer.from(user.avatar).toString("base64");
+                    let userProfile = {
+                        ...users._doc,
+                        avatar:avatar
+                    }
+                    usersList.push(userProfile)
+               }
+            })
+            res.status(200).send(users);
+       } catch (error) {
+           console.log(error.message);
+           res.status(500).send({msg:"Server Error"})
+       }
    })
    
 

@@ -5,7 +5,7 @@ const PsychProfile = require("../../models/Psychiatrist/psych-profile/PsychProfi
 const Psychiatrist = require("../../models/Psychiatrist");
 const Avi = require("../../models/Psychiatrist/psych-profile/Avi");
 const auth = require("../../middleware/auth");
-
+const adminAuth = require("../../middleware/adminAuth");
 var upload = multer({
   // limits:{
   //   fileSize:3000000 //equals 3mb 
@@ -188,6 +188,30 @@ router.get("/all/basic",async(req,res) => {
 
 })
 
+router.post("/search/all",adminAuth,async(req,res) => {
+  try {
+    const {
+      searchText
+    } = req.body;
+    let psychsList = [];
+    const psychs = await PsychProfile.find({$text:{$search:searchText}})
+    psychs.forEach((psych) => {
+      if(psych.avatar == undefined) {
+        psychsList.push(psych)
+      } else {
+        let psychAvatar = Buffer.from(psych.avatar).toString("base64");
+        let psychData = {
+          ...psych._doc,
+          avatar:psychAvatar
+        }
+        psychsList.push(psychData);
+      }
+    })
+    res.status(200).send(psychsList)
+  } catch (error) {
+    res.status(500).send({msg:"Internal Server Error"});
+  }
+})
 
 // router.get("/",async(req,res) => {
 //   try {

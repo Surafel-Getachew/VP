@@ -128,7 +128,7 @@ router.post("/search/all",async(req,res) => {
       }
       articleList.push(articleData);
     })
-    res.send(articleList);
+    res.status(200).send(articleList);
   } catch (error) {
     res.status(500).send({msg:"Internal Server Error"})
   }

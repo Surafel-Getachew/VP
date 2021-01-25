@@ -16,4 +16,5 @@ const UserProfileSchema = mongoose.Schema({
     }
 });
 
+UserProfileSchema.index({name:"text"});
 module.exports = mongoose.model("userProfile",UserProfileSchema);

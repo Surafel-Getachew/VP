@@ -54,4 +54,5 @@ const PsychProfileSchema = mongoose.Schema({
   },
 });
 
+PsychProfileSchema.index({name:"text"});
 module.exports = mongoose.model("psychProfile", PsychProfileSchema);
